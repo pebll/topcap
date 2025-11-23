@@ -3,8 +3,10 @@ from copy import deepcopy
 import random
 import matplotlib.pyplot as plt
 
+from topcap.agents.rl_agent import ReinforcementLearningAgent
+
 from .game import Game
-from topcap.agents import QDicter, RandomAI
+from topcap.agents import RandomAI
 from topcap.core.common import Player, Color
 from topcap.utils import WinReason
 
@@ -31,9 +33,9 @@ class Arena:
     def run_sample_game(self, white: Player, black: Player, vv: bool = True):
         game = Game()
         if vv: 
-            if type(white) == QDicter:
+            if type(white) == ReinforcementLearningAgent:
                 white.vv = True
-            if type(black) == QDicter:
+            if type(black) == ReinforcementLearningAgent:
                 black.vv = True
         game.run_game(white, black)
 
@@ -124,42 +126,23 @@ class Arena:
         plt.tight_layout()
         plt.show()
 
-    def train_from_agent(self, agent: QDicter, first_opponent: Player | None = None, save_frequency: int = 100, num_games: int = 1000, verbose: bool = False) -> None:
-        """Train a newly created agent from scratch with its parameters.
+    def train(self, agent: ReinforcementLearningAgent, continue_training: bool = True, first_opponent: Player | None = None, save_frequency: int = 100, num_games: int = 1000, verbose: bool = False, sample_size: int = 10) -> None:
+        """ Trains a RL agent 
         
         Args:
-            agent: A newly created QLearner agent with desired parameters
-            first_opponent: Initial opponent to train against
+            agent: The agent to train
+            continue_training: True to continue from existing, False to reset
+            first_opponent: Initial opponent
+            num_games: The number of games to train
             save_frequency: How often to save a snapshot
-            num_games: Number of games to train
-            verbose: Whether to print detailed game information
         """
-        # Find highest version and create new version
-        highest_version = QDicter.find_highest_version(agent.name)
-        new_version = highest_version + 1
-        agent.version = new_version
-        print(f"Created new agent {agent} (previous highest version was {highest_version})")
-        
-        # Use the provided agent and start training
-        self._train_agent(agent, first_opponent, save_frequency, num_games, verbose)
-
-    def train_continue(self, name: str, version: int, first_opponent: Player | None = None, save_frequency: int = 100, num_games: int = 1000, verbose: bool = False, sample_size = 10) -> None:
-        """Continue training an existing agent from its latest saved state.
-        
-        Args:
-            name: Name of the agent to continue training
-            version: Version of the agent to continue training
-            first_opponent: Initial opponent (only used if no snapshots exist)
-            save_frequency: How often to save a snapshot
-            num_games: Number of games to train
-            verbose: Whether to print detailed game information
-        """
-        # Try to load existing agent
-        agent = QDicter(name, version=version, verbose=verbose)
+        if not continue_training:
+            # TODO: reset and delete saves? or do not allow this in the first place?
+            raise NotImplementedError
         if agent.load_latest():
             print(f"Loaded existing agent {agent} from iteration {agent.iteration}")
         else:
-            raise ValueError(f"No saved agent found for {name} version {version}. Use train_from_agent() to start a new agent.")
+            print(f"No save found, training agent {agent} from scratch")
         
         # Find all saved iterations and load them as snapshots
         iterations = agent.find_all_iterations()
@@ -170,7 +153,7 @@ class Arena:
         if iterations:
             print(f"Loading {len(iterations)} existing snapshots...")
             for iteration in iterations:
-                snapshot_agent = QDicter(name, version=version, verbose=False)
+                snapshot_agent = deepcopy(agent)
                 snapshot_agent.load(iteration)
                 snapshot_agent.freeze()
                 # snapshot_agent.epsilon = 0 # greedy the snapshot
@@ -180,25 +163,7 @@ class Arena:
         # Continue training with existing snapshots
         self._train_agent(agent, first_opponent, save_frequency, num_games, verbose, initial_snapshots)
 
-    def train(self, name: str, version: int = 1, continue_training: bool = True, first_opponent: Player | None = None, save_frequency: int = 100, num_games: int = 1000, verbose: bool = False) -> None:
-        """ Trains a RL agent (legacy method, use train_from_agent or train_continue instead)
-        
-        Args:
-            name: The name of the agent to train
-            version: the version of the agent to train (ignored if continue_training=False)
-            continue_training: True to continue from existing, False to create new version
-            first_opponent: Initial opponent
-            num_games: The number of games to train
-            save_frequency: How often to save a snapshot
-        """
-        if continue_training:
-            self.train_continue(name, version, first_opponent, save_frequency, num_games, verbose)
-        else:
-            # Create a basic agent with defaults
-            agent = QDicter(name, version=1, verbose=verbose)
-            self.train_from_agent(agent, first_opponent, save_frequency, num_games, verbose)
-
-    def _train_agent(self, agent: QDicter, first_opponent: Player | None, save_frequency: int, num_games: int, verbose: bool, initial_snapshots: list[Player] | None = None) -> None:
+    def _train_agent(self, agent: ReinforcementLearningAgent, first_opponent: Player | None, save_frequency: int, num_games: int, verbose: bool, initial_snapshots: list[Player] | None = None) -> None:
         """Internal method to train an agent (shared logic for train_from_agent and train_continue).
         
         Args:
@@ -275,24 +240,20 @@ class Arena:
         if num_games > 1:
             self._plot_stats()
 
-    def test_progress_self(self, name: str, version: int, verbose: bool = False, sample_size : int = 10) -> None:
+    def test_progress_self(self, agent: ReinforcementLearningAgent, verbose: bool = False, sample_size : int = 10) -> None:
         """Test all saved iterations of an agent against an opponent and plot winrate over iterations.
         
         Args:
-            name: Name of the agent to test
-            version: Version of the agent to test
             opponent: Opponent to test against
             num_test_games: Number of test games to run for each iteration
             verbose: Whether to print detailed game information
         """
-        # Create a temporary agent to find iterations
-        temp_agent = QDicter(name, version=version, verbose=verbose)
-        iterations = temp_agent.find_all_iterations()
+        iterations = agent.find_all_iterations()
         if sample_size > 1:
             iterations = self._sample_to_size(iterations, sample_size+1)
         
         if not iterations:
-            print(f"No saved iterations found for agent {name} version {version}")
+            print(f"No saved iterations found for agent {agent}")
             return
         
         num_test_games = len(iterations) - 1
@@ -303,14 +264,13 @@ class Arena:
         iteration_winrates: dict[int, float] = {}
         
         for iteration in iterations:
-            # Load the agent at this iteration (config will be loaded automatically)
-            opponent = QDicter(name, version=version, verbose=verbose)
+            opponent = deepcopy(agent)
             opponent.freeze()
-            opponent.epsilon = 0.03
-            test_agent = QDicter(name, version=version, verbose=verbose)
-            test_agent.load(iteration)  # This will load both q_table and config
+            # opponent.epsilon = 0.03
+            test_agent = deepcopy(agent)
+            test_agent.load(iteration)
             test_agent.freeze()  # Freeze to prevent learning during testing
-            test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
+            # test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
             if not verbose:
                 test_agent.verbose = False
             wins = 0
@@ -345,23 +305,19 @@ class Arena:
         step = (n - 1) / (target - 1)
         return [lst[min(int(round(i*step)), n-1)] for i in range(target)]
 
-
-    def test_progress(self, name: str, version: int, opponent: Player, num_test_games: int = 100, verbose: bool = False, sample_size:int = 10) -> None:
+    def test_progress(self, agent: ReinforcementLearningAgent, opponent: Player, num_test_games: int = 100, verbose: bool = False, sample_size:int = 10) -> None:
         """Test all saved iterations of an agent against an opponent and plot winrate over iterations.
         
         Args:
-            name: Name of the agent to test
-            version: Version of the agent to test
             opponent: Opponent to test against
             num_test_games: Number of test games to run for each iteration
             verbose: Whether to print detailed game information
         """
         # Create a temporary agent to find iterations
-        temp_agent = QDicter(name, version=version, verbose=verbose)
-        iterations = temp_agent.find_all_iterations()
+        iterations = agent.find_all_iterations()
         
         if not iterations:
-            print(f"No saved iterations found for agent {name} version {version}")
+            print(f"No saved iterations found for agent {agent}")
             return
         if sample_size > 1:
             iterations = self._sample_to_size(iterations, sample_size)
@@ -378,10 +334,10 @@ class Arena:
         
         for iteration in iterations:
             # Load the agent at this iteration (config will be loaded automatically)
-            test_agent = QDicter(name, version=version, verbose=verbose)
+            test_agent = deepcopy(agent)
             test_agent.load(iteration)  # This will load both q_table and config
             test_agent.freeze()  # Freeze to prevent learning during testing
-            test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
+            # test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
             
             if not verbose:
                 test_agent.verbose = False
@@ -404,16 +360,16 @@ class Arena:
             print(f"Iteration {iteration}: {wins}/{num_test_games} wins ({winrate:.1%} winrate)")
         
         # Plot results
-        self._plot_progress(iteration_winrates, temp_agent, opponent.name)
+        self._plot_progress(iteration_winrates, agent, opponent.name)
     
-    def _plot_progress(self, iteration_winrates: dict[int, float], agent: QDicter, opponent_name: str) -> None:
+    def _plot_progress(self, iteration_winrates: dict[int, float], agent: ReinforcementLearningAgent, opponent_name: str) -> None:
         """Plot winrate over iterations."""
         iterations = sorted(iteration_winrates.keys())
         winrates = [iteration_winrates[it] for it in iterations]
         
         plt.figure(figsize=(10, 6))
         plt.plot(iterations, winrates, marker='o', linestyle='-', linewidth=2, markersize=6)
-        plt.title(f'Training Progress: {agent.name}{agent.version} vs {opponent_name}')
+        plt.title(f'Training Progress: {agent.name} vs {opponent_name}')
         plt.xlabel('Iteration')
         plt.ylabel('Winrate')
         plt.grid(True, alpha=0.3)

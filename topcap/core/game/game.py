@@ -84,25 +84,23 @@ class Game:
                 self.winner, self.win_reason = (Color.NONE, WinReason.DRAW_THREEFOLD_REPETITION)
                 self.game_over = True
         
-        rewards = (0, 0) # Zero rewards if not terminal state (TODO: maybe add living reward)
         MAX_REWARD = 10.0
+        reward = 0
         if self.game_over:
             self.log(self.board.to_str())
             if not self.winner:
                 # DRAW
-                # rewards are small minus reward to discourage draws
-                rewards = (-MAX_REWARD/10, -MAX_REWARD/10)
                 self.log(f"Draw due to {self.win_reason}!")
             else: 
                 # WIN
-                rewards = (MAX_REWARD, -MAX_REWARD) if self.winner == Color.WHITE else (-MAX_REWARD, MAX_REWARD)
+                reward = MAX_REWARD * self.winner.value
                 self.log(f"{self.winner} wins because {self.win_reason}!")
 
         # AGENT GAME STEP CALLBACKS
         if isinstance(self.white, ReinforcementLearningAgent):
-            self.white.game_step_callback(self.current_player.color, self.board, rewards, self.game_over)
+            self.white.game_step_callback(self.current_player.color, self.board, reward, self.game_over)
         if isinstance(self.black, ReinforcementLearningAgent):
-            self.black.game_step_callback(self.current_player.color, self.board, rewards, self.game_over)
+            self.black.game_step_callback(self.current_player.color, self.board, reward, self.game_over)
 
     def _print_game_state(self):
         next_available_moves = self.board.get_all_valid_moves(self.current_player.color)

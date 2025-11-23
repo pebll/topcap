@@ -1,19 +1,19 @@
-from abc import abstractmethod
-from typing import override
+from abc import abstractmethod, ABC
+from typing import override, Any
 import pickle
 import os
 
 from topcap.core.common import Player, Board, Move, Color
 
-class ReinforcementLearningAgent(Player):
+class ReinforcementLearningAgent(Player, ABC):
     def __init__(self, classname: str, name: str, verbose: bool = True, decay: float = 0.95, vv: bool = False):
         super().__init__(name, verbose)
-        self.classname = classname
+        self.classname: str = classname
         self.vv: bool = vv
         self.decay: float = decay
         self.iteration : int = 0
+        self.params: Any = None
         self.frozen : bool = False
-        self.game_history : list[tuple[str, str]] = []
 
     # TODO: move away to utils
     def _state_action_pair(self, board: Board, move: Move) -> tuple[str, str]:
@@ -46,7 +46,7 @@ class ReinforcementLearningAgent(Player):
         pass # TODO: replace by strategy class at some point
 
     @abstractmethod
-    def game_step_callback(self, player: Color, new_board: Board, rewards: tuple[float, float], terminal: bool):
+    def game_step_callback(self, player: Color, new_board: Board, reward: float, terminal: bool):
         """Is called when move was performed by any player
             rewards: (white_reward, black_reward) always subjective pov"""
         pass
@@ -63,9 +63,8 @@ class ReinforcementLearningAgent(Player):
         """Filename for saving agent configuration parameters."""
         return f"{self.dirname()}/{self.name}_config.pkl"
 
-    @abstractmethod
     def _save_config(self):
-        # TODO: make a config class?
+        # TODO: make a config class!!!
         """Save agent configuration parameters (only called on first save).
         example implementation:"""
         config = {
@@ -74,7 +73,6 @@ class ReinforcementLearningAgent(Player):
         }
         pickle.dump(config, open(self.config_filename(), 'wb'))
 
-    @abstractmethod
     def _load_config(self):
         """Load agent configuration parameters.
         example implementation:"""
@@ -84,12 +82,13 @@ class ReinforcementLearningAgent(Player):
         self.decay = config.get('decay')
         self.vv = config.get('vv')
 
-    @abstractmethod
     def _save_params(self):
         """Save agent params e.g. Q Table or NN weights
         example implementation:"""
-        params = [0, 0, 1]
-        pickle.dump(params, open(self.filename(), 'wb'))
+        pickle.dump(self.params, open(self.filename(), 'wb'))
+
+    def _load_params(self):
+        self.params = pickle.load(open(self.filename(), 'rb'))
 
     def save(self): 
         """Save current params (and config if not done yet)
@@ -103,8 +102,18 @@ class ReinforcementLearningAgent(Player):
         # Save config on first save (if config doesn't exist yet)
         if not os.path.exists(self.config_filename()):
             self._save_config()
-        
+
         self._save_params()
+
+    def load(self, iteration: int):
+        """Load agent at a specific iteration. Also loads config if it exists."""
+        # Load config if it exists (only once per instance)
+        if os.path.exists(self.config_filename()) and not hasattr(self, '_config_loaded'):
+            self._load_config()
+            self._config_loaded = True
+        
+        self.iteration = iteration
+        self._load_params()
 
     def _find_latest_iteration(self) -> int | None:
         """Find the latest iteration number for the current name. Returns None if no saves exist."""
@@ -156,15 +165,6 @@ class ReinforcementLearningAgent(Player):
         self.load(latest_iteration)
         return True
 
-    def load(self, iteration: int):
-        """Load agent at a specific iteration. Also loads config if it exists."""
-        # Load config if it exists (only once per instance)
-        if os.path.exists(self.config_filename()) and not hasattr(self, '_config_loaded'):
-            self._load_config()
-            self._config_loaded = True
-        
-        self.iteration = iteration
-        self.q_table = pickle.load(open(self.filename(), 'rb'))
 
     @override
     def __str__(self) -> str:
