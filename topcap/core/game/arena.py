@@ -2,7 +2,9 @@ from collections import defaultdict
 from copy import deepcopy
 import random
 import matplotlib.pyplot as plt
+from datetime import datetime
 
+from topcap.agents.leo_agent_v1 import LeoAgentV1
 from topcap.agents.rl_agent import ReinforcementLearningAgent
 
 from .game import Game
@@ -17,8 +19,11 @@ class Arena:
         self.total_games: int = 0
         # Track cumulative wins per game for winrate over time
         self.game_history: list[dict[str, int]] = []  # List of {player_name: cumulative_wins} per game
+        # Track param size over time
+        self.param_size_history: list[int] = []
 
-    def _run_single_game(self, white: Player, black: Player, verbose: bool=False) -> tuple[Player | None, WinReason]:
+
+    def _run_single_game(self, white: Player, black: Player, verbose: bool=False) -> tuple[Player | None, WinReason, Game]:
         game = Game(verbose)
         game.run_game(white, black)
         winner = game.winner
@@ -28,15 +33,19 @@ class Arena:
         elif winner == Color.BLACK:
             winner_player = black
         win_reason = game.win_reason
-        return winner_player, win_reason
+        return winner_player, win_reason, game
 
     def run_sample_game(self, white: Player, black: Player, vv: bool = True):
         game = Game()
-        if vv: 
-            if type(white) == ReinforcementLearningAgent:
-                white.vv = True
-            if type(black) == ReinforcementLearningAgent:
-                black.vv = True
+        agents = [white, black]
+        for agent in agents:
+            if vv: 
+                if isinstance(agent, ReinforcementLearningAgent):
+                    agent.vv = True
+                    if isinstance(agent, LeoAgentV1):
+                        agent.epsilon = 0
+
+
         game.run_game(white, black)
 
     def run_games(self, count: int, player_1: Player, player_2: Player, verbose: bool = False) -> None:
@@ -47,7 +56,7 @@ class Arena:
         for i in range(count):
             white = player_1 if i%2==0 else player_2
             black = player_1 if i%2==1 else player_2
-            winner, win_reason = self._run_single_game(white, black, verbose)
+            winner, win_reason, game = self._run_single_game(white, black, verbose)
             if winner:
                 print(f"Game {i+1}/{count}: {winner} wins because {win_reason.value}")
                 # Track stats
@@ -67,7 +76,7 @@ class Arena:
 
     def _plot_stats(self) -> None:
         """Plot winrate and win type statistics"""
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4))
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(20, 4))
         
         # Winrate over time (moving average over last 20 games)
         if self.game_history:
@@ -122,6 +131,20 @@ class Arena:
         ax3.set_ylabel('Count')
         ax3.set_xlabel('Win Type')
         ax3.tick_params(axis='x', rotation=45)
+        
+        # Params size over time
+        if self.param_size_history:
+            games = list(range(1, len(self.param_size_history) + 1))
+            ax4.plot(games, self.param_size_history, marker='o', markersize=3, linestyle='-', linewidth=2)
+            ax4.set_title('Params Size Over Time')
+            ax4.set_ylabel('Number of Params')
+            ax4.set_xlabel('Game Number')
+            ax4.grid(True, alpha=0.3)
+        else:
+            ax4.text(0.5, 0.5, 'No params data available', 
+                    horizontalalignment='center', verticalalignment='center', 
+                    transform=ax4.transAxes)
+            ax4.set_title('Params Size Over Time')
         
         plt.tight_layout()
         plt.show()
@@ -191,6 +214,9 @@ class Arena:
             # Only add default opponent if we have no snapshots
             snapshot_opponents.append(RandomAI("defaulti"))
         
+        log_frequency = 50
+        start_time = datetime.now()
+        position_count = 0
         for i in range(num_games):
             # Every save_frequency games, save the agent and add a snapshot
             if i > 0 and i % save_frequency == 0:
@@ -200,6 +226,14 @@ class Arena:
                 # snapshot.epsilon = 0 # greedy the snapshot
                 snapshot_opponents.append(snapshot)
                 print(f"Game {i}/{num_games}: Saving snapshot {snapshot}")
+            if i > 0 and i % log_frequency == 0:
+                duration = (datetime.now() - start_time).total_seconds()
+                print(f"Stats:")
+                print(f"{(log_frequency/duration):.0f} games/s")
+                print(f"{(position_count/duration):.0f} posistions/s")
+                print(f"{(position_count/log_frequency):.0f} posistions/game")
+                start_time = datetime.now()
+                position_count = 0
             
             opponent = random.choice(snapshot_opponents)
             
@@ -208,7 +242,7 @@ class Arena:
             black = agent if i % 2 == 1 else opponent
             
             # Run the game
-            winner, win_reason = self._run_single_game(white, black, verbose)
+            winner, win_reason, game = self._run_single_game(white, black, verbose)
             if winner:
                 looser = agent if winner == opponent else opponent
                 # Color: green if training agent wins, red if loses
@@ -223,10 +257,13 @@ class Arena:
                 self.wins_by_player["Draw"] += 1
             self.wins_by_type[win_reason.name] += 1
             self.total_games += 1
+            position_count += game.current_step
             
             # Track cumulative wins for winrate over time
             cumulative_wins = dict(self.wins_by_player)
             self.game_history.append(cumulative_wins)
+            self.param_size_history.append(len(agent.params))
+
         
         # Save final state
         agent.save()
@@ -283,7 +320,7 @@ class Arena:
                 white = test_agent if i % 2 == 0 else opponent
                 black = test_agent if i % 2 == 1 else opponent
                 
-                winner, _ = self._run_single_game(white, black, verbose)
+                winner, _, _ = self._run_single_game(white, black, verbose)
                 
                 # Only count wins (not draws) for winrate calculation
                 if winner == test_agent:
@@ -294,7 +331,7 @@ class Arena:
             print(f"Iteration {iteration}: {wins}/{num_test_games} wins ({winrate:.1%} winrate)")
             
         # Plot results
-        self._plot_progress(iteration_winrates, temp_agent, opponent.name)
+        self._plot_progress(iteration_winrates, agent, opponent.name)
 
     def _sample_to_size(self, lst, target):
         n = len(lst)
@@ -349,7 +386,7 @@ class Arena:
                 white = test_agent if i % 2 == 0 else opponent
                 black = test_agent if i % 2 == 1 else opponent
                 
-                winner, _ = self._run_single_game(white, black, verbose)
+                winner, _, _ = self._run_single_game(white, black, verbose)
                 
                 # Only count wins (not draws) for winrate calculation
                 if winner == test_agent:

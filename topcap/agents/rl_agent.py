@@ -33,6 +33,8 @@ class ReinforcementLearningAgent(Player, ABC):
             for move, eval in move_evaluations.items():
                 print(f"{move}: {eval:.2f})")
         move = self._choose_action(move_evaluations) # TODO: replace by a ExplorationStrategy class instance
+        if self.vv:
+            print(f"Chose move {move} with eval {move_evaluations[move]:.2f}")
         return move
 
     @abstractmethod

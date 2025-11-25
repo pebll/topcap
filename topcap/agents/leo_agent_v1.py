@@ -42,7 +42,7 @@ class LeoAgentV1(ReinforcementLearningAgent):
     def load_latest(self) -> bool:
         worked = super().load_latest()
         print(f"Loaded agent at iteration {self.iteration}")
-        print(f"Len of V-Table: {len(self.params)}")
+        print(f"Len of V-Table: {len(self.params)} ({len(self.params)/10000000:.2f}%)")
         print(f"Eval of start position: {self._get_value(Board())}")
         return worked
 
