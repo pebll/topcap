@@ -1,4 +1,4 @@
-def print_nested_profile(stats, threshold=0.1):
+def print_nested_profile(stats, threshold=0.1, max_indent=3):
     "Print nested profile showing call hierarchy: name, calls, cum, self, % of total. Shows all entries with cum >= threshold."
     from collections import defaultdict
     stats.calc_callees()
@@ -115,9 +115,11 @@ def print_nested_profile(stats, threshold=0.1):
         pct = (c/total)*100 if total else 0.0
         nm = name(node['func'])
         print(f"{c:7.1f} s  {s:7.1f} s  {ncalls:6d}  {pct:6.0f}%  {indent}{nm}")
-        # Sort children by cumulative time and print them
-        for child in sorted(node['children'], key=lambda ch: ch['cum'], reverse=True):
-            print_node(child, depth + 1, visited.copy())
+        # Only print children if we haven't reached max_indent
+        if depth < max_indent:
+            # Sort children by cumulative time and print them
+            for child in sorted(node['children'], key=lambda ch: ch['cum'], reverse=True):
+                print_node(child, depth + 1, visited.copy())
         visited.remove(node['func'])
     # Print filtered trees
     for tree in filtered_trees:

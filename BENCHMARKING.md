@@ -59,3 +59,29 @@ Implement `to_hash()` and `from_hash()` to more efficiently store board states
 - States per second: 367.7 /s
 - Time to complete : 11.690 s
 - Number of states : 4298
+
+ ---- 100 GAMES - Randi VS Rando ----
+
+- Games per second: 6.8 /s
+- States per second: 208.1 /s
+- Number of states: 3078
+- Time to complete : 14.788 s
+
+   cum(s)    self(s)   calls        %  name
+   14.8 s      0.0 s     100     100%  _run_single_game:26
+   14.8 s      0.0 s     100     100%    run_game:42
+    7.6 s      0.0 s    3178      51%      _game_step:67
+    6.7 s      0.8 s  135124      45%        move_is_valid:43
+    3.3 s      0.0 s    3178      22%        get_win_reason:96
+    3.8 s      0.0 s    3178      26%      _print_game_state:105
+    9.7 s      0.1 s    9517      66%        get_all_valid_moves:88
+    3.3 s      0.0 s    3178      22%      get_move:11
+    9.7 s      0.1 s    9517      66%        get_all_valid_moves:88
+
+-> loosing 150 games/s when running actual games (with randoms) compared to raw DFS
+
+### Conclusion
+
+->  `get_tile_content` is very slow..
+->  `get_all_valid_moves` is very slow..
+-> Running games speed is 208 states/s
