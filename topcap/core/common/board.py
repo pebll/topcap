@@ -40,9 +40,10 @@ class Board:
         self.move_count: int= 0
     
     def move(self, move: Move, verbose: bool = False):
-        if not self.move_is_valid(move, self.get_tile_content(move.from_tile)):
+        from_coords = _TILE_TO_COORDS_CACHE[move.from_tile]
+        from_content = Color(self.board[from_coords])
+        if not self.move_is_valid(move, from_content):
             raise ValueError(f"Cannot execute move, invalid move {move}, please check this before running move()")
-        from_content = self.get_tile_content(move.from_tile)
         # _set_tile_content now handles tiles dictionary updates, so we just call it
         self._set_tile_content(move.from_tile, Color.NONE)
         self._set_tile_content(move.to_tile, from_content)
@@ -66,7 +67,8 @@ class Board:
             if verbose:
                 print(f"To tile {to_tile} does not exist, invalid move")
             return False
-        from_content = self.get_tile_content(from_tile)
+        from_coords = _TILE_TO_COORDS_CACHE[from_tile]
+        from_content = Color(self.board[from_coords])
         if from_content == Color.NONE:
             if verbose:
                 print(f"From tile {from_tile} is empty, invalid move")
@@ -75,20 +77,43 @@ class Board:
             if verbose:
                 print(f"Invalid move, piece can only be moved by own player")
             return False
-        path = move.path()
-        if len(path) == 0:
+        
+        # Check path directly with coordinates (avoid creating string list)
+        # coords are (y, x) format: (row, column)
+        to_coords = _TILE_TO_COORDS_CACHE[to_tile]
+        dy = to_coords[0] - from_coords[0]  # row difference
+        dx = to_coords[1] - from_coords[1]  # column difference
+        if dx != 0 and dy != 0:
             if verbose:
                 print(f"Invalid move, path is diagonal or empty")
             return False
-        if len(path) != self._get_neighbour_count(from_tile):
+        
+        # Calculate path length and check it matches neighbour count
+        path_length = abs(dx) + abs(dy)
+        neighbour_count = int(self.neighbour_count_board[from_coords])
+        if path_length != neighbour_count:
             if verbose:
                 print(f"Invalid move, path length is not equal to neighbour count")
             return False
-        for tile in path:
-            if self.get_tile_content(tile) != Color.NONE:
+        
+        # Check path is clear (using coordinates directly)
+        # coords are (y, x) format
+        step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+        step_x = 1 if dx > 0 else -1 if dx < 0 else 0
+        y, x = from_coords[0], from_coords[1]
+        for _ in range(path_length):
+            y += step_y
+            x += step_x
+            if y < 0 or y >= 6 or x < 0 or x >= 6:
                 if verbose:
+                    print(f"Invalid move, path goes out of bounds")
+                return False
+            if self.board[y, x] != Color.NONE.value:
+                if verbose:
+                    tile = _COORDS_TO_TILE_CACHE[(y, x)]
                     print(f"Invalid move, path is blocked by {tile}")
                 return False
+        
         if to_tile == self.base_tile[from_content]:
             if verbose:
                 print(f"Invalid move, piece cannot move into own base")
@@ -182,9 +207,10 @@ class Board:
     def _get_valid_moves_for_tile(self, tile: str) -> list[Move]:
         valid_moves: list[Move] = []
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        neighbour_count = self._get_neighbour_count(tile)
         coords = _TILE_TO_COORDS_CACHE[tile]
         tile_content = Color(self.board[coords])
+        neighbour_count = int(self.neighbour_count_board[coords])
+        base_tile = self.base_tile[tile_content]
         
         for dx, dy in directions:
             new_y = coords[0] + dy * neighbour_count
@@ -193,9 +219,31 @@ class Board:
                 continue
             to_coords = (new_y, new_x)
             to_tile = _COORDS_TO_TILE_CACHE[to_coords]
-            move = Move(tile, to_tile)
-            if self.move_is_valid(move, tile_content):
-                valid_moves.append(move)
+            
+            # Inline validation checks (avoid calling move_is_valid)
+            if to_tile == tile:  # Can't move to same tile
+                continue
+            if to_tile == base_tile:
+                continue
+            
+            # Check path is clear
+            # coords are (y, x) format, directions are (dy, dx)
+            step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+            step_x = 1 if dx > 0 else -1 if dx < 0 else 0
+            y, x = coords[0], coords[1]
+            path_clear = True
+            for _ in range(neighbour_count):
+                y += step_y
+                x += step_x
+                if y < 0 or y >= 6 or x < 0 or x >= 6:
+                    path_clear = False
+                    break
+                if self.board[y, x] != Color.NONE.value:
+                    path_clear = False
+                    break
+            
+            if path_clear:
+                valid_moves.append(Move(tile, to_tile))
         return valid_moves
     
     @override
@@ -208,9 +256,6 @@ class Board:
             return self.to_hash() == other.to_hash()
         return False
 
-    @override 
-    def __hash__(self):
-        return hash(str(self.board) + str(self.current_player))
 
     def to_str(self) -> str:
         space_length = 6
@@ -230,22 +275,27 @@ class Board:
         return my_str
 
     def to_hash(self) -> int:
-        # get the posistions of all the pieces
+        # Get positions of all pieces directly from board
+        # Use numpy operations for faster iteration
         whites = []
         blacks = []
-        for x in range(6):
-            for y in range(6):
-                if self.board[y, x] == Color.WHITE.value:
-                    whites.append(x+6*y)
-                elif self.board[y, x] == Color.BLACK.value:
-                    blacks.append(x+6*y)
-        # sort them
+        for y in range(6):
+            for x in range(6):
+                val = self.board[y, x]
+                if val == Color.WHITE.value:
+                    whites.append(x + 6 * y)
+                elif val == Color.BLACK.value:
+                    blacks.append(x + 6 * y)
+        
+        # Sort them (needed for consistent hashing)
         whites.sort()
         blacks.sort()
-        # encode into int
+        
+        # Encode into int using bit operations
         h = 0
-        for i, pos in enumerate(whites + blacks):
-            h = h | (pos << (i * 6))
+        all_positions = whites + blacks
+        for i, pos in enumerate(all_positions):
+            h |= (pos << (i * 6))
         return h
 
     def from_hash(self, hash: int):

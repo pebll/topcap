@@ -2,6 +2,14 @@ from typing import override
 
 from topcap.utils import tile_to_coords, coords_to_tile
 
+# Import cache for performance
+try:
+    from topcap.core.common.board import _TILE_TO_COORDS_CACHE, _COORDS_TO_TILE_CACHE
+except ImportError:
+    # Fallback if cache not available (shouldn't happen in normal usage)
+    _TILE_TO_COORDS_CACHE = None
+    _COORDS_TO_TILE_CACHE = None
+
 
 class Move:
     def __init__(self, from_tile : str, to_tile: str):
@@ -38,8 +46,13 @@ class Move:
         return Move(from_tile, to_tile)
     
     def path(self) -> list[str]:
-        from_coords: tuple[int, int] = tile_to_coords(self.from_tile)
-        to_coords: tuple[int, int] = tile_to_coords(self.to_tile)
+        # Use cached coords if available for performance
+        if _TILE_TO_COORDS_CACHE is not None:
+            from_coords = _TILE_TO_COORDS_CACHE[self.from_tile]
+            to_coords = _TILE_TO_COORDS_CACHE[self.to_tile]
+        else:
+            from_coords: tuple[int, int] = tile_to_coords(self.from_tile)
+            to_coords: tuple[int, int] = tile_to_coords(self.to_tile)
         dx = to_coords[0] - from_coords[0]
         dy = to_coords[1] - from_coords[1]
         if dx != 0 and dy != 0:
@@ -50,10 +63,17 @@ class Move:
         path: list[str] = []
         x = from_coords[0]
         y = from_coords[1]
-        while x != to_coords[0] or y != to_coords[1]:
-            x += dx
-            y += dy
-            path.append(coords_to_tile((x, y)))
+        # Use cached coords_to_tile if available
+        if _COORDS_TO_TILE_CACHE is not None:
+            while x != to_coords[0] or y != to_coords[1]:
+                x += dx
+                y += dy
+                path.append(_COORDS_TO_TILE_CACHE[(x, y)])
+        else:
+            while x != to_coords[0] or y != to_coords[1]:
+                x += dx
+                y += dy
+                path.append(coords_to_tile((x, y)))
         return path
 
 

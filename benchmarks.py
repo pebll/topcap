@@ -31,8 +31,8 @@ def bfs(max_depth : int, initial_board: Board):
     return first_time_found.keys()
 
 
-PERCENTAGE_THRESHOLD = 1
-MAX_INDENT = 20
+PERCENTAGE_THRESHOLD = 20
+MAX_INDENT = 5
 def analyze_run_games(player1: Player, player2: Player, num_games: int = 100):
     profiler = cProfile.Profile()
     profiler.enable()
@@ -87,8 +87,8 @@ def analyze_dfs(depth: int):
 
 NUM_GAMES = 50
 def main():
-    # for depth in DEPTHS:
-    #     analyze_dfs(depth)
+    for depth in DEPTHS:
+        analyze_dfs(depth)
     player1 = RandomAI("Randi")
     player2 = RandomAI("Rando")
     analyze_run_games(player1, player2, NUM_GAMES)

@@ -85,14 +85,17 @@ Implement `to_hash()` and `from_hash()` to more efficiently store board states
 ->  `get_tile_content` is very slow..
 ->  `get_all_valid_moves` is very slow..
 -> Running games speed is 208 states/s
+-> DFS speed is 350 states/s
 
-## Let Cursor optimize the hello out of my code (25/11)
+## Let Cursor optimize the hell out of my code (25/11)
 
 ### Solution
 
 Ask Cursor.
 
 ### Results
+
+FIRST PASS:
 
 Beginning benchmarking RUN 50 GAMES performance
  ---- 50 GAMES - Randi VS Rando ----
@@ -102,7 +105,33 @@ Beginning benchmarking RUN 50 GAMES performance
 - Number of states: 1397
 - Time to complete : 3.695 s
 
+SECOND PASS:
+
+ ---- 50 GAMES - Randi VS Rando ----
+
+- Games per second: 22.8 /s
+- States per second: 705.7 /s
+- Number of states: 1546
+- Time to complete : 2.191 s
+
+ ---- DEPTH = 4 ----
+
+- States per second: 975.4 /s
+- Time to complete : 7.676 s
+- Number of states : 7487
+
 ### Conclusion
+
+FIRST PASS:
 
 Great improvement!
 -> 210/s to 380/s (almost 2X boost)
+
+SECOND PASS:
+
+Wow amazing!!
+-> 380/s to 700/s (almost 2x boost!)
+
+TOTAL:
+-> Running games speed is 700 states/s (3.5x boost)
+-> DFS speed is 1000 states/s (2.5x boost)
