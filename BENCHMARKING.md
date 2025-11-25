@@ -85,3 +85,24 @@ Implement `to_hash()` and `from_hash()` to more efficiently store board states
 ->  `get_tile_content` is very slow..
 ->  `get_all_valid_moves` is very slow..
 -> Running games speed is 208 states/s
+
+## Let Cursor optimize the hello out of my code (25/11)
+
+### Solution
+
+Ask Cursor.
+
+### Results
+
+Beginning benchmarking RUN 50 GAMES performance
+ ---- 50 GAMES - Randi VS Rando ----
+
+- Games per second: 13.5 /s
+- States per second: 378.1 /s
+- Number of states: 1397
+- Time to complete : 3.695 s
+
+### Conclusion
+
+Great improvement!
+-> 210/s to 380/s (almost 2X boost)

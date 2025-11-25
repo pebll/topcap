@@ -8,6 +8,17 @@ from .color import Color
 from .move import Move
 
 
+# Pre-compute tile string to coordinates mapping for performance
+_TILE_TO_COORDS_CACHE: dict[str, tuple[int, int]] = {}
+_COORDS_TO_TILE_CACHE: dict[tuple[int, int], str] = {}
+for y in range(6):
+    for x in range(6):
+        tile = chr(x + ord('a')) + str(y + 1)
+        coords = (y, x)
+        _TILE_TO_COORDS_CACHE[tile] = coords
+        _COORDS_TO_TILE_CACHE[coords] = tile
+
+
 class Board:
     def __init__(self):
         self.board: NDArray[np.int8] = np.zeros((6, 6), dtype=np.int8)
@@ -32,9 +43,9 @@ class Board:
         if not self.move_is_valid(move, self.get_tile_content(move.from_tile)):
             raise ValueError(f"Cannot execute move, invalid move {move}, please check this before running move()")
         from_content = self.get_tile_content(move.from_tile)
+        # _set_tile_content now handles tiles dictionary updates, so we just call it
         self._set_tile_content(move.from_tile, Color.NONE)
         self._set_tile_content(move.to_tile, from_content)
-        self._update_piece_positions()
         self.current_player = self.current_player.opposite()
         self.move_count += 1
         if verbose:
@@ -60,6 +71,10 @@ class Board:
             if verbose:
                 print(f"From tile {from_tile} is empty, invalid move")
             return False
+        if from_content != moving_player:
+            if verbose:
+                print(f"Invalid move, piece can only be moved by own player")
+            return False
         path = move.path()
         if len(path) == 0:
             if verbose:
@@ -77,10 +92,6 @@ class Board:
         if to_tile == self.base_tile[from_content]:
             if verbose:
                 print(f"Invalid move, piece cannot move into own base")
-            return False
-        if self.get_tile_content(from_tile) != moving_player:
-            if verbose:
-                print(f"Invalid move, piece can only be moved by own player")
             return False
 
         return True
@@ -101,10 +112,7 @@ class Board:
         return Color.NONE, WinReason.NONE 
 
     def _tile_exists(self, tile: str):
-        coords = utils.tile_to_coords(tile)
-        tile_number = self._tile_number(coords)
-        return tile_number >= 0 and tile_number < 32
-        return coords[0] >= 0 and coords[0] < 6 and coords[1] >= 0 and coords[1] < 6
+        return tile in _TILE_TO_COORDS_CACHE
 
     def _tile_number(self, coords: tuple[int, int]):
         return coords[0] + coords[1]*6
@@ -113,21 +121,35 @@ class Board:
         add_content = content != Color.NONE
         if not self._tile_exists(tile):
             raise ValueError(f"Tile {tile} does not exist, can't set content")
-        coords = utils.tile_to_coords(tile)
-        old_content = self.get_tile_content(tile)
+        coords = _TILE_TO_COORDS_CACHE[tile]
+        old_content = Color(self.board[coords])
         if add_content and old_content != Color.NONE:
             raise ValueError(f"Tile {tile} is already occupied, can't the content to {content}")
         if not add_content and old_content == Color.NONE:
             raise ValueError(f"Tile {tile} is already empty, can't remove the content")
-        self._update_neighbour_count(tile, add_content)
+        
+        # Update tiles dictionary to keep it in sync
+        if old_content != Color.NONE and old_content in self.tiles:
+            if tile in self.tiles[old_content]:
+                self.tiles[old_content].remove(tile)
+        if add_content:
+            if content not in self.tiles:
+                self.tiles[content] = []
+            if tile not in self.tiles[content]:
+                self.tiles[content].append(tile)
+        
+        self._update_neighbour_count_coords(coords, add_content)
         self.board[coords] = content.value
     
     def get_tile_content(self, tile: str):
-        coords = utils.tile_to_coords(tile)
+        coords = _TILE_TO_COORDS_CACHE[tile]
         return Color(self.board[coords])
     
     def _update_neighbour_count(self, tile: str, increase: bool):
-        coords = utils.tile_to_coords(tile)
+        coords = _TILE_TO_COORDS_CACHE[tile]
+        self._update_neighbour_count_coords(coords, increase)
+    
+    def _update_neighbour_count_coords(self, coords: tuple[int, int], increase: bool):
         for dy in [-1, 0, 1]:
             for dx in [-1, 0, 1]:
                 if dx == 0 and dy == 0:
@@ -142,36 +164,37 @@ class Board:
                     self.neighbour_count_board[new_y, new_x] -= 1
     
     def _get_neighbour_count(self, tile: str) -> int:
-        coords = utils.tile_to_coords(tile)
+        coords = _TILE_TO_COORDS_CACHE[tile]
         return int(self.neighbour_count_board[coords])
     
     def _update_piece_positions(self):
+        """Rebuild piece positions from board. Only used when needed (e.g., from_hash)."""
         self.tiles[Color.WHITE] = []
         self.tiles[Color.BLACK] = []
         for y in range(6):
             for x in range(6):
-                tile = utils.coords_to_tile((x, y))
-                content = self.get_tile_content(tile)
-                if content != Color.NONE:
-                    self.tiles[content].append(tile)
+                coords = (y, x)
+                content_value = self.board[coords]
+                if content_value != Color.NONE.value:
+                    tile = _COORDS_TO_TILE_CACHE[coords]
+                    self.tiles[Color(content_value)].append(tile)
 
     def _get_valid_moves_for_tile(self, tile: str) -> list[Move]:
         valid_moves: list[Move] = []
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         neighbour_count = self._get_neighbour_count(tile)
+        coords = _TILE_TO_COORDS_CACHE[tile]
+        tile_content = Color(self.board[coords])
         
         for dx, dy in directions:
-            if not utils.is_tile_valid(tile):
+            new_y = coords[0] + dy * neighbour_count
+            new_x = coords[1] + dx * neighbour_count
+            if new_y < 0 or new_y >= 6 or new_x < 0 or new_x >= 6:
                 continue
-            x, y = utils.tile_to_coords(tile)
-            x += dx * neighbour_count
-            y += dy * neighbour_count
-            coords = (x, y)
-            if not utils.is_coords_valid(coords):
-                continue
-            to_tile = utils.coords_to_tile((x, y))
+            to_coords = (new_y, new_x)
+            to_tile = _COORDS_TO_TILE_CACHE[to_coords]
             move = Move(tile, to_tile)
-            if self.move_is_valid(move, self.get_tile_content(tile)):
+            if self.move_is_valid(move, tile_content):
                 valid_moves.append(move)
         return valid_moves
     
@@ -237,10 +260,16 @@ class Board:
         blacks = positions[4:]
 
         self.board: NDArray[np.int8] = np.zeros((6, 6), dtype=np.int8)
+        self.neighbour_count_board: NDArray[np.int8] = np.zeros((6, 6), dtype=np.int8)
         for (x, y) in whites:
-            self.board[x,y] = Color.WHITE.value
+            coords = (y, x)  # Note: board uses (y, x) indexing
+            self.board[coords] = Color.WHITE.value
+            self._update_neighbour_count_coords(coords, True)
         for (x, y) in blacks:
-            self.board[x,y] = Color.BLACK.value
+            coords = (y, x)  # Note: board uses (y, x) indexing
+            self.board[coords] = Color.BLACK.value
+            self._update_neighbour_count_coords(coords, True)
+        self._update_piece_positions()
 
     @override
     def __hash__(self) -> int:
