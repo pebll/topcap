@@ -29,7 +29,7 @@ def test_base_reached():
     game.run_game(leo , jan, custom_board=board)
     assert game.board.move_count == 1
     assert game.win_reason == WinReason.BASE_REACHED
-    assert game.winner == leo
+    assert game.winner == leo.color
 
 def test_no_moves_left():
     moves_leo = [Move("a4", "a3")]
@@ -43,5 +43,5 @@ def test_no_moves_left():
     game.run_game(leo , jan, custom_board=board)
     assert game.board.move_count == 1
     assert game.win_reason == WinReason.NO_MOVES_LEFT
-    assert game.winner == leo
+    assert game.winner == leo.color
 

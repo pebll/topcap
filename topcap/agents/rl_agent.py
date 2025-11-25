@@ -15,10 +15,6 @@ class ReinforcementLearningAgent(Player, ABC):
         self.params: Any = None
         self.frozen : bool = False
 
-    # TODO: move away to utils
-    def _state_action_pair(self, board: Board, move: Move) -> tuple[str, str]:
-        return  (board.to_code(), move.to_code())
-    
     def freeze(self, frozen: bool = True):
         self.frozen = frozen
 

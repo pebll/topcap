@@ -16,10 +16,10 @@ class LeoAgentV1(ReinforcementLearningAgent):
         self.game_history: list[Board] = []
 
     def _get_value(self, board: Board):
-        return self.params.get(board.to_code(), 0)
+        return self.params.get(board.to_hash(), 0)
     
     def _set_value(self, board: Board, value: float):
-        self.params[board.to_code()] = value
+        self.params[board.to_hash()] = value
  
     @override
     def _choose_action(self, move_evaluations: dict[Move, float]) -> Move:

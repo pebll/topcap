@@ -89,8 +89,7 @@ class Board:
         tiles: list[str] = self.tiles[player]
         moves: list[Move] = []
         for from_tile in tiles:
-            for move in self._get_valid_moves_for_tile(from_tile):
-                moves.append(move)
+            moves.extend(self._get_valid_moves_for_tile(from_tile))
         return moves
     
     def get_win_reason(self) -> tuple[Color, WinReason]:
@@ -103,7 +102,12 @@ class Board:
 
     def _tile_exists(self, tile: str):
         coords = utils.tile_to_coords(tile)
+        tile_number = self._tile_number(coords)
+        return tile_number >= 0 and tile_number < 32
         return coords[0] >= 0 and coords[0] < 6 and coords[1] >= 0 and coords[1] < 6
+
+    def _tile_number(self, coords: tuple[int, int]):
+        return coords[0] + coords[1]*6
         
     def _set_tile_content(self, tile: str, content: Color):
         add_content = content != Color.NONE
@@ -173,12 +177,12 @@ class Board:
     
     @override
     def __repr__(self):
-        return f"B({self.move_count})"
+        return f"B{self.to_hash()[-4:]}({self.move_count})"
 
     @override
     def __eq__(self, other: object):
         if isinstance(other, Board):
-            return np.array_equal(self.board, other.board) and self.current_player == other.current_player and self.move_count == other.move_count
+            return self.to_hash() == other.to_hash()
         return False
 
     @override 
@@ -241,71 +245,3 @@ class Board:
     @override
     def __hash__(self) -> int:
         return self.to_hash()
-
-    def to_code(self) -> str:
-        code = ""
-        for y in range(5, -1, -1):  # Start from row 6 (index 5)
-            for x in range(6):
-                color: int = self.board[y, x]
-                c = '-'
-                if color == Color.WHITE.value:
-                    c = 'W'
-                elif color == Color.BLACK.value:
-                    c = 'B'
-                code += c
-        return code
-
-    @staticmethod
-    def from_code(code: str) -> 'Board':
-        """
-        Create a Board from a code string (reverse of to_code()).
-        Code format: 36 characters representing board state row by row (top to bottom, left to right).
-        'W' = White, 'B' = Black, '-' = Empty
-        """
-        if len(code) != 36:
-            raise ValueError(f"Code must be exactly 36 characters (6x6 board), got {len(code)}")
-        
-        board = Board()
-        
-        # First, remove all existing pieces by setting them to NONE
-        # We need to do this before setting new pieces to avoid validation errors
-        for tile in board.tiles[Color.WHITE] + board.tiles[Color.BLACK]:
-            old_content = board.get_tile_content(tile)
-            if old_content != Color.NONE:
-                coords = utils.tile_to_coords(tile)
-                board._update_neighbour_count(tile, False)  # Decrease neighbour count
-                board.board[coords] = Color.NONE.value
-        
-        # Clear tile lists
-        board.tiles[Color.WHITE] = []
-        board.tiles[Color.BLACK] = []
-        
-        # Parse code and set board state
-        char_index = 0
-        for y in range(5, -1, -1):  # Start from row 6 (index 5) to row 1 (index 0)
-            for x in range(6):
-                c = code[char_index]
-                char_index += 1
-                
-                if c == 'W':
-                    color = Color.WHITE
-                elif c == 'B':
-                    color = Color.BLACK
-                elif c == '-':
-                    color = Color.NONE
-                else:
-                    raise ValueError(f"Invalid character '{c}' in code at position {char_index-1}. Expected 'W', 'B', or '-'")
-                
-                # Set tile content (this will update neighbour counts)
-                tile = utils.coords_to_tile((y, x))
-                if color != Color.NONE:
-                    board._set_tile_content(tile, color)
-        
-        # Update piece positions based on final board state
-        board._update_piece_positions()
-        
-        # Reset to default values (can't be determined from code)
-        board.current_player = Color.WHITE
-        board.move_count = 0
-        
-        return board

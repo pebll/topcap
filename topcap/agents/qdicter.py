@@ -20,7 +20,7 @@ class QDicter(Player):
         self.frozen : bool = False
 
     def _state_action_pair(self, board: Board, move: Move) -> tuple[str, str]:
-        return  (board.to_code(), move.to_code())
+        return  (board.to_hash(), move.to_hash())
     
     def freeze(self, frozen: bool = True):
         self.frozen = frozen

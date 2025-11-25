@@ -48,7 +48,7 @@ class Arena:
 
         game.run_game(white, black)
 
-    def run_games(self, count: int, player_1: Player, player_2: Player, verbose: bool = False) -> None:
+    def run_games(self, count: int, player_1: Player, player_2: Player, verbose: bool = False, plot_stats: bool = True) -> None:
         """Runs X games with alternating colors"""
         if not verbose:
             player_1.verbose = False
@@ -71,7 +71,7 @@ class Arena:
             cumulative_wins = dict(self.wins_by_player)
             self.game_history.append(cumulative_wins)
         
-        if count > 1:
+        if count > 1 and plot_stats:
             self._plot_stats()
 
     def _plot_stats(self) -> None:
