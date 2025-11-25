@@ -202,6 +202,46 @@ class Board:
         my_str += " " * space_length + "  a b c d e f\n"
         return my_str
 
+    def to_hash(self) -> int:
+        # get the posistions of all the pieces
+        whites = []
+        blacks = []
+        for x in range(6):
+            for y in range(6):
+                if self.board[y, x] == Color.WHITE.value:
+                    whites.append(x+6*y)
+                elif self.board[y, x] == Color.BLACK.value:
+                    blacks.append(x+6*y)
+        # sort them
+        whites.sort()
+        blacks.sort()
+        # encode into int
+        h = 0
+        for i, pos in enumerate(whites + blacks):
+            h = h | (pos << (i * 6))
+        return h
+
+    def from_hash(self, hash: int):
+        positions = []
+        for i in range(8):
+            pos = (hash >> (i * 6)) & 0b111111  # Extract 6 bits
+            x = pos % 6
+            y = pos // 6
+            positions.append((x, y))
+        
+        whites = positions[:4]
+        blacks = positions[4:]
+
+        self.board: NDArray[np.int8] = np.zeros((6, 6), dtype=np.int8)
+        for (x, y) in whites:
+            self.board[x,y] = Color.WHITE.value
+        for (x, y) in blacks:
+            self.board[x,y] = Color.BLACK.value
+
+    @override
+    def __hash__(self) -> int:
+        return self.to_hash()
+
     def to_code(self) -> str:
         code = ""
         for y in range(5, -1, -1):  # Start from row 6 (index 5)
