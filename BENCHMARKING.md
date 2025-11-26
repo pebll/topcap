@@ -93,6 +93,19 @@ Implement `to_hash()` and `from_hash()` to more efficiently store board states
 
 Ask Cursor.
 
+FIRST PASS:
+
+- remove tile_to_coords and coords_to_tile conversions
+
+SECOND PASS:
+
+- forgot
+
+THIRD PASS:
+
+- remove deepcopy
+- optimize to_hash func
+
 ### Results
 
 FIRST PASS:
@@ -120,6 +133,21 @@ SECOND PASS:
 - Time to complete : 7.676 s
 - Number of states : 7487
 
+THIRD PASS:
+
+ ---- DEPTH = 4 ----
+
+- States per second: 2348.5 /s
+- Time to complete : 3.188 s
+- Number of states : 7487
+
+ ---- 50 GAMES - Randi VS Rando ----
+
+- Games per second: 40.9 /s
+- States per second: 1105.2 /s
+- Number of states: 1350
+- Time to complete : 1.222 s
+
 ### Conclusion
 
 FIRST PASS:
@@ -132,6 +160,14 @@ SECOND PASS:
 Wow amazing!!
 -> 380/s to 700/s (almost 2x boost!)
 
+THIRD PASS:
+
+Crazy!!
+-> 700/s -> 1100/s (1.5x boost!)
+
 TOTAL:
--> Running games speed is 700 states/s (3.5x boost)
--> DFS speed is 1000 states/s (2.5x boost)
+-> Running games speed is 1100 states/s (5x boost)
+  on ThinkCenter this is DOUBLE: 1600 states /s
+-> DFS speed is 2300 states/s (before: 350/s -> ~7x boost)
+  on ThinkCenter this is 2000 states/s!!! (DOUBLE)
+  (DFS 5 has 45k states! DFS 4 has 7.5k)

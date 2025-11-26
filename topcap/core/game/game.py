@@ -109,7 +109,9 @@ class Game:
         self.log(self.board.to_str())
     
     def _save_board_state(self):
-        board_copy = deepcopy(self.board)
+        # Use __copy__ instead of deepcopy for better performance
+        # Board's __copy__ is optimized and sufficient for our needs
+        board_copy = self.board.__copy__()
         self.board_states.append(board_copy)
         # Track board state occurrences for threefold repetition detection
         self.board_state_counts[board_copy] += 1

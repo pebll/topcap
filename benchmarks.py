@@ -22,7 +22,7 @@ def bfs(max_depth : int, initial_board: Board):
         board = Board()
         board.from_hash(hash)
         for move in board.get_all_valid_moves(player):
-            new_board = deepcopy(board)
+            new_board = board.__copy__()  # Use optimized copy instead of deepcopy
             new_board.move(move)
             if new_board not in first_time_found.keys():
                 queue.append(new_board.to_hash())

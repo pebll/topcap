@@ -1,4 +1,5 @@
 from typing import  override
+from copy import deepcopy
 import numpy as np
 from numpy.typing import NDArray
 
@@ -275,28 +276,33 @@ class Board:
         return my_str
 
     def to_hash(self) -> int:
-        # Get positions of all pieces directly from board
-        # Use numpy operations for faster iteration
-        whites = []
-        blacks = []
-        for y in range(6):
-            for x in range(6):
-                val = self.board[y, x]
-                if val == Color.WHITE.value:
-                    whites.append(x + 6 * y)
-                elif val == Color.BLACK.value:
-                    blacks.append(x + 6 * y)
+        # Use numpy operations to find pieces faster
+        white_mask = self.board == Color.WHITE.value
+        black_mask = self.board == Color.BLACK.value
         
-        # Sort them (needed for consistent hashing)
-        whites.sort()
-        blacks.sort()
+        # Get indices where pieces exist
+        white_indices = np.where(white_mask)
+        black_indices = np.where(black_mask)
+        
+        # Convert (y, x) coordinates to position numbers using numpy operations
+        if len(white_indices[0]) > 0:
+            whites = (white_indices[1] + 6 * white_indices[0]).tolist()
+            whites.sort()
+        else:
+            whites = []
+        
+        if len(black_indices[0]) > 0:
+            blacks = (black_indices[1] + 6 * black_indices[0]).tolist()
+            blacks.sort()
+        else:
+            blacks = []
         
         # Encode into int using bit operations
         h = 0
         all_positions = whites + blacks
         for i, pos in enumerate(all_positions):
             h |= (pos << (i * 6))
-        return h
+        return int(h)  # Ensure Python int, not numpy.int64
 
     def from_hash(self, hash: int):
         positions = []
@@ -324,3 +330,20 @@ class Board:
     @override
     def __hash__(self) -> int:
         return self.to_hash()
+    
+    def __copy__(self):
+        """Custom shallow copy for faster copying."""
+        new_board = object.__new__(Board)
+        new_board.board = self.board.copy()
+        new_board.neighbour_count_board = self.neighbour_count_board.copy()
+        new_board.tiles = {color: tiles[:] for color, tiles in self.tiles.items()}
+        new_board.base_tile = self.base_tile.copy()
+        new_board.current_player = self.current_player
+        new_board.move_count = self.move_count
+        return new_board
+    
+    def __deepcopy__(self, memo):
+        """Custom deep copy optimized for Board objects."""
+        # For Board, shallow copy is sufficient since numpy arrays are copied
+        # and lists/dicts are shallow copied (which is fine for our use case)
+        return self.__copy__()
