@@ -5,6 +5,8 @@
 
 using Bitboard = uint64_t;
 
-int getValue(Bitboard Bitboard, int position);
+int getBit(Bitboard bitboard, int position);
+Bitboard setBit(Bitboard bitboard, int position);
+Bitboard clearBit(Bitboard bitboard, int position);
 
 #endif // !BITBOARD_H
