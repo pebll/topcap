@@ -1,15 +1,32 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude
+BUILDDIR = build
 
-game: src/main.cpp src/bitboard.cpp
-	$(CXX) $(CXXFLAGS) $^ -o build/game
+# Object files
+BITBOARD_OBJ = $(BUILDDIR)/bitboard.o
+TEST_OBJ = $(BUILDDIR)/test_bitboard.o
 
-test: src/bitboard.cpp tests/test_bitboard.cpp
-	@mkdir -p build
-	$(CXX) $(CXXFLAGS) src/bitboard.cpp tests/test_bitboard.cpp -o build/test_game
-	./build/test_game
+game: src/main.cpp $(BITBOARD_OBJ)
+	@mkdir -p $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) src/main.cpp $(BITBOARD_OBJ) -o $(BUILDDIR)/game
+
+test: $(BITBOARD_OBJ) $(TEST_OBJ)
+	@mkdir -p $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(BITBOARD_OBJ) $(TEST_OBJ) -o $(BUILDDIR)/test_game
+	./$(BUILDDIR)/test_game
+
+# Compile bitboard.cpp to object file
+$(BITBOARD_OBJ): src/bitboard.cpp include/bitboard.h | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -c src/bitboard.cpp -o $@
+
+# Compile test_bitboard.cpp to object file
+$(TEST_OBJ): tests/test_bitboard.cpp include/bitboard.h | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -c tests/test_bitboard.cpp -o $@
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
 clean:
-	rm -rf  build
+	rm -rf $(BUILDDIR)
 
-.PHONY: test clean
+.PHONY: test clean game
