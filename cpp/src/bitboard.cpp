@@ -1,3 +1,5 @@
 #include "../include/bitboard.h"
 
-// Implementations will go here
+int getValue(Bitboard bitboard, int position) {
+    return (bitboard & (1ULL << position)) >> position;
+}
