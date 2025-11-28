@@ -1,5 +1,5 @@
+#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-
 #include "../include/bitboard.h"
 
 TEST_CASE("getValue returns correct bit", "[bitboard]") {
