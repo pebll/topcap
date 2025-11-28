@@ -57,6 +57,18 @@ Example: remove from 0 (0001), bitboard = (1001)
 newBitboard = bitboard ^ ( 1 << position ) 
 ```
 
+### Clear value at position
+
+Example: Clear from 0 (0001), bitboard = (1001)
+
+1000 = 1001 & ~(0001 << 0)
+...  = 1001 & 1110
+...  = 1000
+
+```cpp
+newBitboard = bitboard & ~( 1 << position ) 
+```
+
 ### Move a piece
 
 Example: move from 0 (0001) to 2 (0100), bitboard = (1001)
