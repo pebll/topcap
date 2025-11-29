@@ -1,5 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude
+DEBUGFLAGS = -g -O0
 BUILDDIR = build
 
 # Object files
@@ -14,24 +15,24 @@ game: src/main.cpp $(BITBOARD_OBJ) $(BOARD_OBJ)
 
 test: $(BITBOARD_OBJ) $(BOARD_OBJ) $(TEST_BITBOARD_OBJ) $(TEST_BOARD_OBJ)
 	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(BITBOARD_OBJ) $(BOARD_OBJ) $(TEST_BITBOARD_OBJ) $(TEST_BOARD_OBJ) -o $(BUILDDIR)/test_game
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) $(BITBOARD_OBJ) $(BOARD_OBJ) $(TEST_BITBOARD_OBJ) $(TEST_BOARD_OBJ) -o $(BUILDDIR)/test_game
 	./$(BUILDDIR)/test_game
 
 # Compile bitboard.cpp to object file
 $(BITBOARD_OBJ): src/bitboard.cpp include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c src/bitboard.cpp -o $@
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c src/bitboard.cpp -o $@
 
 # Compile board.cpp to object file
 $(BOARD_OBJ): src/board.cpp include/board.h include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c src/board.cpp -o $@
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c src/board.cpp -o $@
 
 # Compile test_bitboard.cpp to object file
 $(TEST_BITBOARD_OBJ): tests/test_bitboard.cpp include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c tests/test_bitboard.cpp -o $@
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c tests/test_bitboard.cpp -o $@
 
 # Compile test_board.cpp to object file
 $(TEST_BOARD_OBJ): tests/test_board.cpp include/board.h include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c tests/test_board.cpp -o $@
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c tests/test_board.cpp -o $@
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
