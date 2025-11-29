@@ -54,3 +54,16 @@ TEST_CASE("positionToCoords works correctly", "[bitboard]") {
   // Out of bounds for N = 4, should not happen
   // positionToCoords(24, 4) -> ERROR
 }
+
+TEST_CASE("neighbourCount counts neighbours correctly", "[bitboard]") {
+  // 1100
+  // 0000
+  // 1000
+  // 0100
+  Bitboard bitboard = 0b0011'0000'0001'0010;
+  int N = 4;
+  REQUIRE(neighbourCount(bitboard, {3, 0}, N) == 0);
+  REQUIRE(neighbourCount(bitboard, {0, 3}, N) == 1);
+  REQUIRE(neighbourCount(bitboard, {0, 2}, N) == 3);
+  REQUIRE(neighbourCount(bitboard, {1, 1}, N) == 2);
+}
