@@ -2,10 +2,16 @@
 #define BOARD_H
 
 #include "bitboard.h"
+#include <string>
+
+namespace board {
+
+const int STRING_SPACE_LENGTH = 6;
 
 struct Board {
-  Bitboard white;
-  Bitboard black;
+  bitboard::Bitboard white;
+  bitboard::Bitboard black;
+  int N;
 };
 
 inline bool operator==(const Board &lhs, const Board &rhs) {
@@ -13,5 +19,12 @@ inline bool operator==(const Board &lhs, const Board &rhs) {
 }
 
 Board initialBoard(int N);
+std::string boardToString(Board board);
+std::string mStringHeader(int N);
+
+} // namespace board
+
+// Namespace alias for convenience
+namespace b = board;
 
 #endif // !BOARD_H
