@@ -1,6 +1,8 @@
 #include "../include/bitboard.h"
 #include <cassert>
 
+namespace bitboard {
+
 int getBit(Bitboard bitboard, int position) {
   assert(position >= 0 && position < 64);
   return (bitboard & (1ULL << position)) >> position;
@@ -29,3 +31,5 @@ Coordinates positionToCoords(int position, int N) {
   Coordinates coords = {position % N, position / N};
   return coords;
 }
+
+} // namespace bitboard

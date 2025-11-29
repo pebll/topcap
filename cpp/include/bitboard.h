@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace bitboard {
+
 using Bitboard = uint64_t;
 
 struct Coordinates {
@@ -20,5 +22,10 @@ Bitboard clearBit(Bitboard bitboard, int position);
 
 int coordsToPosition(Coordinates coords, int N);
 Coordinates positionToCoords(int position, int N);
+
+} // namespace bitboard
+
+// Namespace alias for convenience
+namespace bb = bitboard;
 
 #endif // !BITBOARD_H

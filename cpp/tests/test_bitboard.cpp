@@ -2,6 +2,8 @@
 #include "../include/bitboard.h"
 #include "catch.hpp"
 
+using namespace bb; // Use namespace alias for convenience
+
 TEST_CASE("getBit returns correct bit", "[bitboard]") {
   Bitboard board = 0b1001;
 
