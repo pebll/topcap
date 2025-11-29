@@ -47,4 +47,7 @@ std::string boardToString(Board board) {
   return str;
 }
 
+int neighbourCount(Board board, bitboard::Coordinates coords) {
+  return bitboard::neighbourCount(board.white | board.black, coords, board.N);
+}
 } // namespace board
