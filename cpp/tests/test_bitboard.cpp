@@ -32,3 +32,23 @@ TEST_CASE("clearBit correctly clears bit", "[bitboard]") {
   // Chaining
   REQUIRE(clearBit(clearBit(board, 0), 3) == 0b0000);
 }
+
+TEST_CASE("coordsToPosition works correctly", "[bitboard]") {
+  Coordinates coords02 = {0, 2};
+  REQUIRE(coordsToPosition(coords02, 4) == 8);
+  REQUIRE(coordsToPosition(coords02, 5) == 10);
+  Coordinates coords44 = {4, 4};
+  REQUIRE(coordsToPosition(coords44, 5) == 24);
+  // Out of bounds for N = 4, should not happen
+  // coordsToPosition(coords44, 4); -> ERROR
+}
+
+TEST_CASE("positionToCoords works correctly", "[bitboard]") {
+  Coordinates coords02 = {0, 2};
+  REQUIRE(positionToCoords(8, 4) == coords02);
+  REQUIRE(positionToCoords(10, 5) == coords02);
+  Coordinates coords44 = {4, 4};
+  REQUIRE(positionToCoords(24, 5) == coords44);
+  // Out of bounds for N = 4, should not happen
+  // positionToCoords(24, 4) -> ERROR
+}

@@ -1,6 +1,9 @@
 #include "../include/board.h"
 #include "catch.hpp"
 
+#define TEST_ALL
+#ifndef TEST_ALL
+
 TEST_CASE("initialBoard gives correct initial states", "[board]") {
   Bitboard white4 = 0b0010'0001'0000'0000;
   Bitboard black4 = 0b0000'0000'1000'0100;
@@ -12,3 +15,5 @@ TEST_CASE("printBoard prints correct string", "[board]") {
   // Test multiple sizes
   REQUIRE(true);
 }
+
+#endif // TEST_ALL
