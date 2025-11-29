@@ -22,6 +22,8 @@ Board initialBoard(int N);
 std::string boardToString(Board board);
 std::string mStringHeader(int N);
 
+int neighbourCount(Board board, bitboard::Coordinates coords);
+
 } // namespace board
 
 // Namespace alias for convenience

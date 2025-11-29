@@ -34,6 +34,14 @@ TEST_CASE("printBoard prints correct string", "[board]") {
   REQUIRE(boardToString(initialBoard(6)) == string6);
 }
 
+TEST_CASE("Neighbour count works", "[board]") {
+  Board board = initialBoard(6);
+  REQUIRE(neighbourCount(board, {0, 0}) == 0);
+  REQUIRE(neighbourCount(board, {3, 2}) == 2);
+  REQUIRE(neighbourCount(board, {1, 3}) == 2);
+  REQUIRE(neighbourCount(board, {3, 0}) == 1);
+}
+
 #ifndef TEST_ALL
 
 #endif // TEST_ALL
