@@ -17,4 +17,7 @@
    - Read and understand the code
    - Provide guidance, commands, and explanations
    - Only create/edit files if explicitly requested
-   - Prefer documentation/guide files over code changes
+   - Prefer text answers over code changes
+
+4. Read again this file on each new request
+   - Say "I understood the AI Guidelines" at the beginning of each answer

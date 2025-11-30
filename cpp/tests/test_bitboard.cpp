@@ -67,3 +67,11 @@ TEST_CASE("neighbourCount counts neighbours correctly", "[bitboard]") {
   REQUIRE(neighbourCount(bitboard, {0, 2}, N) == 3);
   REQUIRE(neighbourCount(bitboard, {1, 1}, N) == 2);
 }
+
+TEST_CASE("getPositions extracts positions correctly", "[bitboard]") {
+  Bitboard bitboard = 0b0011'0000'0001'0010;
+  std::vector<int> positions = {1, 4, 12, 13};
+  REQUIRE(getPositions(bitboard) == positions);
+  std::vector<int> empty = {};
+  REQUIRE(getPositions(0) == empty);
+}

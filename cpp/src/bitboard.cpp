@@ -61,4 +61,15 @@ int neighbourCount(Bitboard bitboard, Coordinates coords, int N) {
   return count;
 }
 
+std::vector<int> getPositions(Bitboard bitboard) {
+  std::vector<int> positions;
+  positions.reserve(8); // reserve for biggest possible N
+  Bitboard temp = bitboard;
+  while (temp) {
+    int pos = __builtin_ctzll(temp); // calculates position of first 1
+    positions.push_back(pos);
+    temp &= temp - 1; // clear last 1 bit
+  }
+  return positions;
+}
 } // namespace bitboard

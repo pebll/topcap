@@ -44,4 +44,25 @@ TEST_CASE("Neighbour count works", "[board]") {
 
 #ifndef TEST_ALL
 
+// Board of size 4
+//         a b c d
+//       4 · · ○ · 4
+//       3 · · · ○ 3
+//       2 ● · · · 2
+//       1 · ● · · 1
+//         a b c d
+
+TEST_CASE("moveIsValid works correctly", "[board]"){... maybe put into bitboard}
+
+TEST_CASE("Piece Move generation works", "[board]") {
+  ... maybe put into bitboard Board board = initialBoard(4);
+  REQUIRE(piecePossibleMoves(board, {0, 0}) == EMPTY_LIST); // no piece here
+  REQUIRE(piecePossibleMoves(board, {1, 0}) == LIST_OF_3)
+}
+
+TEST_CASE("Full Move generation works", "[board]") {
+  Board board = initialBoard(4);
+  REQUIRE(possibleMoves(board, true) == 0);
+}
+
 #endif // TEST_ALL

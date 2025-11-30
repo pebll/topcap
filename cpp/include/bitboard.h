@@ -2,6 +2,7 @@
 #define BITBOARD_H
 
 #include <cstdint>
+#include <vector>
 
 namespace bitboard {
 
@@ -28,6 +29,7 @@ int coordsToPosition(Coordinates coords, int N);
 Coordinates positionToCoords(int position, int N);
 // utility functions
 int neighbourCount(Bitboard bitboard, Coordinates coords, int N);
+std::vector<int> getPositions(Bitboard bitboard);
 
 } // namespace bitboard
 
