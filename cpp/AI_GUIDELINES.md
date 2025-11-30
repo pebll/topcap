@@ -12,6 +12,7 @@
    - Provide plain text answers and instructions
    - Focus on CLI commands and explanations
    - Do not assume code changes are wanted
+   - Keep answers as short as possible
 
 3. **When User Asks for Help**
    - Read and understand the code

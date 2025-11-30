@@ -13,6 +13,11 @@ struct Coordinates {
   int y;
 };
 
+struct Move {
+  Coordinates from;
+  Coordinates to;
+};
+
 inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
   return lhs.x == rhs.x && lhs.x == rhs.x;
 }
@@ -30,6 +35,9 @@ Coordinates positionToCoords(int position, int N);
 // utility functions
 int neighbourCount(Bitboard bitboard, Coordinates coords, int N);
 std::vector<int> getPositions(Bitboard bitboard);
+bool isMoveFeasible(Bitboard bitboard, Move move, int N);
+// ^ only checks bounds and if is not blocked
+bool isPathBlocked(Bitboard bitboard, Move move, int N);
 
 } // namespace bitboard
 

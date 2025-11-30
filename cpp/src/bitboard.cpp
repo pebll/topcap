@@ -1,5 +1,6 @@
 #include "../include/bitboard.h"
 #include <cassert>
+#include <cstdlib>
 
 namespace bitboard {
 
@@ -71,5 +72,42 @@ std::vector<int> getPositions(Bitboard bitboard) {
     temp &= temp - 1; // clear last 1 bit
   }
   return positions;
+}
+
+bool isPathBlocked(Bitboard bitboard, Move move, int N) {
+  int dx = (move.to.x - move.from.x) /
+           std::max(1, std::abs(move.to.x - move.from.x));
+  int dy = (move.to.y - move.from.y) /
+           std::max(1, std::abs(move.to.y - move.from.y));
+  for (int x = move.from.x + dx, y = move.from.y + dy;
+       x - dx != move.to.x || y - dy != move.to.y; x += dx, y += dy) {
+    if (getBit(bitboard, {x, y}, N)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isMoveFeasible(Bitboard bitboard, Move move, int N) {
+  // TODO: create a Optim variant that does only game-relevant checks assuming
+  // that no bugs exist (for example do not check for diagonal as this should
+  // not happen)
+
+  // in bounds
+  if (move.from.x < 0 || move.from.x >= N || move.from.y < 0 ||
+      move.from.y >= N || move.to.x < 0 || move.to.x >= N || move.to.y < 0 ||
+      move.to.y >= N) {
+    return false;
+  }
+  // from empty
+  if (!getBit(bitboard, move.from, N)) {
+    return false;
+  }
+  // path diagonal or same
+  if (!(move.from.x != move.to.x) ^ (move.from.y != move.to.y)) {
+    return false;
+  }
+  // path blocked
+  return !isPathBlocked(bitboard, move, N);
 }
 } // namespace bitboard

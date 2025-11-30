@@ -55,11 +55,15 @@ TEST_CASE("positionToCoords works correctly", "[bitboard]") {
   // positionToCoords(24, 4) -> ERROR
 }
 
+// Board of size 4
+//             a b c d
+//   1100    4 ● ● · · 4
+//   0000    3 · · · · 3
+//   1000    2 ● · · · 2
+//   0100    1 · ● · · 1
+//             a b c d
+//
 TEST_CASE("neighbourCount counts neighbours correctly", "[bitboard]") {
-  // 1100
-  // 0000
-  // 1000
-  // 0100
   Bitboard bitboard = 0b0011'0000'0001'0010;
   int N = 4;
   REQUIRE(neighbourCount(bitboard, {3, 0}, N) == 0);
@@ -74,4 +78,46 @@ TEST_CASE("getPositions extracts positions correctly", "[bitboard]") {
   REQUIRE(getPositions(bitboard) == positions);
   std::vector<int> empty = {};
   REQUIRE(getPositions(0) == empty);
+}
+
+// Board of size 4
+//             a b c d
+//   1100    4 ● ● · · 4
+//   0110    3 · ● ● · 3
+//   1100    2 ● ● · · 2
+//   0100    1 · ● · · 1
+//             a b c d
+//
+TEST_CASE("isPathBlocked works correctly", "[bitboard]") {
+  Bitboard bitboard = 0b0011'0110'0011'0010;
+  int N = 4;
+  REQUIRE(isPathBlocked(bitboard, {{1, 0}, {3, 0}}, N) == false);
+  REQUIRE(isPathBlocked(bitboard, {{3, 0}, {1, 0}}, N) == true);
+  REQUIRE(isPathBlocked(bitboard, {{1, 0}, {1, 3}}, N) == true);
+}
+
+TEST_CASE("isMoveFeasible works correctly", "[bitboard]") {
+  // This checks only for out of bounds and blocked path
+  // NOT for correct move distance or if target is base!
+  // (because this acts on the bitboard level, who is unaware of such things)
+  Bitboard bitboard = 0b0011'0110'0011'0010;
+  int N = 4;
+  // ok move distance 1
+  REQUIRE(isMoveFeasible(bitboard, {{0, 1}, {0, 2}}, N) == true);
+  // target in occupied
+  REQUIRE(isMoveFeasible(bitboard, {{0, 1}, {1, 1}}, N) == false);
+  // from is not occupied
+  REQUIRE(isMoveFeasible(bitboard, {{0, 0}, {0, 1}}, N) == false);
+  // target out of bounds
+  REQUIRE(isMoveFeasible(bitboard, {{0, 1}, {-1, 1}}, N) == false);
+  // from is out of bounds
+  REQUIRE(isMoveFeasible(bitboard, {{-1, 1}, {0, 1}}, N) == false);
+  // diagonal path
+  REQUIRE(isMoveFeasible(bitboard, {{1, 0}, {2, 1}}, N) == false);
+  // from and to are same
+  REQUIRE(isMoveFeasible(bitboard, {{0, 0}, {0, 0}}, N) == false);
+  // ok move distance 2
+  REQUIRE(isMoveFeasible(bitboard, {{1, 1}, {3, 1}}, N) == true);
+  // blocked path
+  REQUIRE(isMoveFeasible(bitboard, {{1, 2}, {3, 2}}, N) == false);
 }
