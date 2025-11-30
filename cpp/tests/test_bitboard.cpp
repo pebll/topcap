@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #include "../include/bitboard.h"
 #include "catch.hpp"
+#include <algorithm>
+#include <vector>
 
 using namespace bb; // Use namespace alias for convenience
 
@@ -120,4 +122,29 @@ TEST_CASE("isMoveFeasible works correctly", "[bitboard]") {
   REQUIRE(isMoveFeasible(bitboard, {{1, 1}, {3, 1}}, N) == true);
   // blocked path
   REQUIRE(isMoveFeasible(bitboard, {{1, 2}, {3, 2}}, N) == false);
+}
+
+// Board of size 4
+//             a b c d
+//   1100    4 ● ● · · 4
+//   0000    3 · · · · 3
+//   1100    2 ● ● · · 2
+//   0100    1 · ● · · 1
+//             a b c d
+//
+TEST_CASE("possibleMovesFrom works", "[bitboard]") {
+  // TODO: check for going into own base!
+  Bitboard bitboard = 0b0011'0000'0011'0010;
+  int N = 4;
+  std::vector<Move> from11 = {{{1, 1}, {3, 1}}};
+  std::vector<Move> from10 = {{{1, 0}, {3, 0}}};
+  std::vector<Move> from13 = {{{1, 3}, {1, 2}}, {{1, 3}, {2, 3}}};
+  REQUIRE(possibleMovesFrom(bitboard, {1, 1}, N) == from11);
+  REQUIRE(possibleMovesFrom(bitboard, {0, 1}, N).size() == 0);
+  REQUIRE(possibleMovesFrom(bitboard, {1, 0}, N) == from10);
+  std::vector<Move> possible13 = possibleMovesFrom(bitboard, {1, 3}, N);
+  std::sort(possible13.begin(), possible13.end());
+  REQUIRE(possible13 == from13);
+  // emtpy from
+  REQUIRE(possibleMovesFrom(bitboard, {2, 1}, N).size() == 0);
 }

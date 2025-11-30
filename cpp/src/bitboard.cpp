@@ -1,6 +1,7 @@
 #include "../include/bitboard.h"
 #include <cassert>
 #include <cstdlib>
+#include <vector>
 
 namespace bitboard {
 
@@ -110,4 +111,21 @@ bool isMoveFeasible(Bitboard bitboard, Move move, int N) {
   // path blocked
   return !isPathBlocked(bitboard, move, N);
 }
+
+std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
+                                    int N) {
+  std::vector<Move> moves;
+  moves.reserve(4);
+  int moveDistance = neighbourCount(bitboard, coords, N);
+  const Coordinates DIRECTIONS[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+  for (const Coordinates &direction : DIRECTIONS) {
+    Coordinates toCoords = coords + (direction * moveDistance);
+    Move move = {coords, toCoords};
+    if (isMoveFeasible(bitboard, move, N)) {
+      moves.push_back(move);
+    }
+  }
+  return moves;
+}
+
 } // namespace bitboard
