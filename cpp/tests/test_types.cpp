@@ -93,14 +93,16 @@ TEST_CASE("sameSet works correctly", "[test_types]") {
 TEST_CASE("Board operator== works correctly", "[test_types]") {
   Board board1 = {0b1001, 0b0110, 4, true};
   Board board2 = {0b1001, 0b0110, 4, true};
-  Board board3 = {0b1001, 0b0110, 5, true}; // Different N (but operator== ignores N)
-  Board board4 = {0b1000, 0b0110, 4, true}; // Different white
-  Board board5 = {0b1001, 0b0100, 4, true}; // Different black
+  Board board3 = {0b1001, 0b0110, 5, true};  // Different N
+  Board board4 = {0b1000, 0b0110, 4, true};  // Different white
+  Board board5 = {0b1001, 0b0100, 4, true};  // Different black
+  Board board6 = {0b1001, 0b0110, 4, false}; // Different whiteToPlay
 
   REQUIRE(board1 == board2);
-  REQUIRE(board1 == board3); // operator== only compares white and black, not N
+  REQUIRE_FALSE(board1 == board3); // Different N
   REQUIRE_FALSE(board1 == board4); // Different white
   REQUIRE_FALSE(board1 == board5); // Different black
+  REQUIRE_FALSE(board1 == board6); // Different whiteToPlay
 }
 
 TEST_CASE("getBitboard returns correct bitboard", "[test_types]") {

@@ -36,7 +36,8 @@ inline bool operator==(const Move &lhs, const Move &rhs) {
 }
 
 inline bool operator==(const Board &lhs, const Board &rhs) {
-  return lhs.white == rhs.white && lhs.black == rhs.black;
+  return lhs.white == rhs.white && lhs.black == rhs.black && lhs.N == rhs.N &&
+         lhs.whiteToPlay == rhs.whiteToPlay;
 }
 
 inline Coordinates operator+(const Coordinates &lhs, const Coordinates &rhs) {
