@@ -113,7 +113,7 @@ bool isMoveFeasible(Bitboard bitboard, Move move, int N) {
 }
 
 std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
-                                    int N) {
+                                    Coordinates forbiddenCoords, int N) {
   std::vector<Move> moves;
   moves.reserve(4);
   int moveDistance = neighbourCount(bitboard, coords, N);
@@ -121,7 +121,7 @@ std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
   for (const Coordinates &direction : DIRECTIONS) {
     Coordinates toCoords = coords + (direction * moveDistance);
     Move move = {coords, toCoords};
-    if (isMoveFeasible(bitboard, move, N)) {
+    if (!(toCoords == forbiddenCoords) && isMoveFeasible(bitboard, move, N)) {
       moves.push_back(move);
     }
   }

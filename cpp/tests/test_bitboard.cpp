@@ -57,7 +57,7 @@ TEST_CASE("positionToCoords works correctly", "[bitboard]") {
   // positionToCoords(24, 4) -> ERROR
 }
 
-// Board of size 4
+// Board of size 4 (A)
 //             a b c d
 //   1100    4 ● ● · · 4
 //   0000    3 · · · · 3
@@ -124,7 +124,7 @@ TEST_CASE("isMoveFeasible works correctly", "[bitboard]") {
   REQUIRE(isMoveFeasible(bitboard, {{1, 2}, {3, 2}}, N) == false);
 }
 
-// Board of size 4
+// Board of size 4 (B)
 //             a b c d
 //   1100    4 ● ● · · 4
 //   0000    3 · · · · 3
@@ -133,18 +133,47 @@ TEST_CASE("isMoveFeasible works correctly", "[bitboard]") {
 //             a b c d
 //
 TEST_CASE("possibleMovesFrom works", "[bitboard]") {
-  // TODO: check for going into own base!
-  Bitboard bitboard = 0b0011'0000'0011'0010;
+  Bitboard bitboardB = 0b0011'0000'0011'0010;
+  Coordinates blackBase = {3, 3};
   int N = 4;
   std::vector<Move> from11 = {{{1, 1}, {3, 1}}};
   std::vector<Move> from10 = {{{1, 0}, {3, 0}}};
   std::vector<Move> from13 = {{{1, 3}, {1, 2}}, {{1, 3}, {2, 3}}};
-  REQUIRE(possibleMovesFrom(bitboard, {1, 1}, N) == from11);
-  REQUIRE(possibleMovesFrom(bitboard, {0, 1}, N).size() == 0);
-  REQUIRE(possibleMovesFrom(bitboard, {1, 0}, N) == from10);
-  std::vector<Move> possible13 = possibleMovesFrom(bitboard, {1, 3}, N);
+  REQUIRE(possibleMovesFrom(bitboardB, {1, 1}, blackBase, N) == from11);
+  REQUIRE(possibleMovesFrom(bitboardB, {0, 1}, blackBase, N).size() == 0);
+  REQUIRE(possibleMovesFrom(bitboardB, {1, 0}, blackBase, N) == from10);
+  std::vector<Move> possible13 =
+      possibleMovesFrom(bitboardB, {1, 3}, blackBase, N);
   std::sort(possible13.begin(), possible13.end());
   REQUIRE(possible13 == from13);
   // emtpy from
-  REQUIRE(possibleMovesFrom(bitboard, {2, 1}, N).size() == 0);
+  REQUIRE(possibleMovesFrom(bitboardB, {2, 1}, blackBase, N).size() == 0);
+}
+
+// Board of size 4 (A)
+//             a b c d
+//   1100    4 ● ● · · 4
+//   0000    3 · · · · 3
+//   1000    2 ● · · · 2
+//   0100    1 · ● · · 1
+//             a b c d
+//
+TEST_CASE(
+    "possibleMovesFrom prevents from moving into forbidden position (own base)",
+    "[bitboard]") {
+  Bitboard bitboardA = 0b0011'0000'0001'0010;
+  int N = 4;
+  std::vector<Move> forbidden00 = {{{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}};
+  std::vector<Move> forbidden33 = {
+      {{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}, {{1, 0}, {0, 0}}};
+  std::sort(forbidden00.begin(), forbidden00.end());
+  std::sort(forbidden33.begin(), forbidden33.end());
+  std::vector<Move> resultForbidden00 =
+      possibleMovesFrom(bitboardA, {1, 0}, {0, 0}, N);
+  std::sort(resultForbidden00.begin(), resultForbidden00.end());
+  std::vector<Move> resultForbidden33 =
+      possibleMovesFrom(bitboardA, {1, 0}, {3, 3}, N);
+  std::sort(resultForbidden33.begin(), resultForbidden33.end());
+  REQUIRE(forbidden00 == resultForbidden00);
+  REQUIRE(forbidden33 == resultForbidden33);
 }

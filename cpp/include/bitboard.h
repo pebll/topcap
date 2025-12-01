@@ -20,7 +20,7 @@ struct Move {
 };
 
 inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
-  return lhs.x == rhs.x && lhs.x == rhs.x;
+  return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
 inline bool operator==(const Move &lhs, const Move &rhs) {
@@ -70,8 +70,9 @@ std::vector<int> getPositions(Bitboard bitboard);
 bool isMoveFeasible(Bitboard bitboard, Move move, int N);
 // ^ only checks bounds and if is not blocked
 bool isPathBlocked(Bitboard bitboard, Move move, int N);
+// forbiddenPosition is the own base (white can't move into white base!)
 std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
-                                    int N);
+                                    Coordinates forbiddenCoords, int N);
 
 } // namespace bitboard
 

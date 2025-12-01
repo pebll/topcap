@@ -3,6 +3,7 @@
 
 #include "bitboard.h"
 #include <string>
+#include <vector>
 
 namespace board {
 
@@ -23,6 +24,7 @@ std::string boardToString(Board board);
 std::string mStringHeader(int N);
 
 int neighbourCount(Board board, bitboard::Coordinates coords);
+std::vector<bitboard::Move> possibleMoves(Board board, bool white);
 
 } // namespace board
 
