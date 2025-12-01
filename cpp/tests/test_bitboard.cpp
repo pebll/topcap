@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <vector>
 
-using namespace bb; // Use namespace alias for convenience
+using namespace bitboard; // Bitboard operations
+using namespace types; // Types
 
 TEST_CASE("getBit returns correct bit", "[bitboard]") {
   Bitboard board = 0b1001;

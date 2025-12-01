@@ -1,10 +1,10 @@
-#include "../include/bitboard.h"
+#include "../include/types.h"
 #include "catch.hpp"
 #include <vector>
 
-using namespace bb;
+using namespace types;
 
-TEST_CASE("Coordinates operator== works correctly", "[test_utils]") {
+TEST_CASE("Coordinates operator== works correctly", "[test_types]") {
   Coordinates c1 = {1, 2};
   Coordinates c2 = {1, 2};
   Coordinates c3 = {1, 3};
@@ -16,7 +16,7 @@ TEST_CASE("Coordinates operator== works correctly", "[test_utils]") {
   REQUIRE_FALSE(c3 == c4);
 }
 
-TEST_CASE("Move operator== works correctly", "[test_utils]") {
+TEST_CASE("Move operator== works correctly", "[test_types]") {
   Move m1 = {{1, 2}, {3, 4}};
   Move m2 = {{1, 2}, {3, 4}};
   Move m3 = {{1, 2}, {3, 5}};
@@ -27,7 +27,7 @@ TEST_CASE("Move operator== works correctly", "[test_utils]") {
   REQUIRE_FALSE(m1 == m4);
 }
 
-TEST_CASE("Coordinates operator+ works correctly", "[test_utils]") {
+TEST_CASE("Coordinates operator+ works correctly", "[test_types]") {
   Coordinates c1 = {1, 2};
   Coordinates c2 = {3, 4};
   Coordinates result = c1 + c2;
@@ -43,7 +43,7 @@ TEST_CASE("Coordinates operator+ works correctly", "[test_utils]") {
   REQUIRE(result2.y == 2);
 }
 
-TEST_CASE("Coordinates operator* works correctly", "[test_utils]") {
+TEST_CASE("Coordinates operator* works correctly", "[test_types]") {
   Coordinates c1 = {2, 3};
   Coordinates result = c1 * 2;
 
@@ -61,7 +61,7 @@ TEST_CASE("Coordinates operator* works correctly", "[test_utils]") {
   REQUIRE(result3.y == 0);
 }
 
-TEST_CASE("Move operator< works correctly for sorting", "[test_utils]") {
+TEST_CASE("Move operator< works correctly for sorting", "[test_types]") {
   Move m1 = {{0, 0}, {1, 1}};
   Move m2 = {{0, 0}, {1, 2}};
   Move m3 = {{0, 1}, {1, 1}};
@@ -75,7 +75,7 @@ TEST_CASE("Move operator< works correctly for sorting", "[test_utils]") {
   REQUIRE_FALSE(m5 < m1); // Equal moves (both ways)
 }
 
-TEST_CASE("sameSet works correctly", "[test_utils]") {
+TEST_CASE("sameSet works correctly", "[test_types]") {
   std::vector<Move> v1 = {{{1, 0}, {2, 0}}, {{0, 1}, {0, 2}}};
   std::vector<Move> v2 = {{{0, 1}, {0, 2}},
                           {{1, 0}, {2, 0}}}; // Same, different order
@@ -88,4 +88,31 @@ TEST_CASE("sameSet works correctly", "[test_utils]") {
   REQUIRE_FALSE(sameSet(v1, v4)); // Different elements
   REQUIRE(sameSet(v5, {}));       // Both empty
   REQUIRE_FALSE(sameSet(v1, v5)); // One empty, one not
+}
+
+TEST_CASE("Board operator== works correctly", "[test_types]") {
+  Board board1 = {0b1001, 0b0110, 4};
+  Board board2 = {0b1001, 0b0110, 4};
+  Board board3 = {0b1001, 0b0110, 5}; // Different N (but operator== ignores N)
+  Board board4 = {0b1000, 0b0110, 4}; // Different white
+  Board board5 = {0b1001, 0b0100, 4}; // Different black
+
+  REQUIRE(board1 == board2);
+  REQUIRE(board1 == board3); // operator== only compares white and black, not N
+  REQUIRE_FALSE(board1 == board4); // Different white
+  REQUIRE_FALSE(board1 == board5); // Different black
+}
+
+TEST_CASE("getBitboard returns correct bitboard", "[test_types]") {
+  Bitboard white = 0b1001;
+  Bitboard black = 0b0110;
+  Board board = {white, black, 4};
+
+  REQUIRE(getBitboard(board, true) == white);
+  REQUIRE(getBitboard(board, false) == black);
+
+  // Test with different boards
+  Board board2 = {0b1111, 0b0000, 6};
+  REQUIRE(getBitboard(board2, true) == 0b1111);
+  REQUIRE(getBitboard(board2, false) == 0b0000);
 }

@@ -1,70 +1,13 @@
 #ifndef BITBOARD_H
 #define BITBOARD_H
 
-#include <algorithm>
-#include <cstdint>
-#include <iostream>
-#include <vector>
+#include "types.h"
 
 namespace bitboard {
 
-// TODO: move all these things (Bitboard, Coordinates, Move & operations to own
-// file)
-// TODO: update makefile to be more generic, supporting the growing size of this
-// project
-using Bitboard = uint64_t;
-
-struct Coordinates {
-  int x;
-  int y;
-};
-
-struct Move {
-  Coordinates from;
-  Coordinates to;
-};
-
-inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
-  return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
-inline bool operator==(const Move &lhs, const Move &rhs) {
-  return lhs.to == rhs.to && lhs.from == rhs.from;
-}
-
-inline Coordinates operator+(const Coordinates &lhs, const Coordinates &rhs) {
-  return {lhs.x + rhs.x, lhs.y + rhs.y};
-}
-
-inline Coordinates operator*(const Coordinates &coords, const int &scalar) {
-  return {coords.x * scalar, coords.y * scalar};
-}
-
-// for Catch2 printing
-inline std::ostream &operator<<(std::ostream &os, const Move &move) {
-  return os << "{{" << move.from.x << "," << move.from.y << "}, {" << move.to.x
-            << "," << move.to.y << "}}";
-}
-
-// for sorting
-inline bool operator<(const Move &lhs, const Move &rhs) {
-  if (lhs.from.x != rhs.from.x)
-    return lhs.from.x < rhs.from.x;
-  if (lhs.from.y != rhs.from.y)
-    return lhs.from.y < rhs.from.y;
-  if (lhs.to.x != rhs.to.x)
-    return lhs.to.x < rhs.to.x;
-  return lhs.to.y < rhs.to.y;
-}
-
-inline bool sameSet(const std::vector<Move> &lhs,
-                    const std::vector<Move> &rhs) {
-  std::vector<Move> lshSorted = lhs;
-  std::vector<Move> rshSorted = rhs;
-  std::sort(lshSorted.begin(), lshSorted.end());
-  std::sort(rshSorted.begin(), rshSorted.end());
-  return lshSorted == rshSorted;
-}
+using Bitboard = types::Bitboard;
+using Coordinates = types::Coordinates;
+using Move = types::Move;
 
 // bitboard operations
 int getBit(Bitboard bitboard, int position);
@@ -89,8 +32,5 @@ std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
                                     Coordinates forbiddenCoords, int N);
 
 } // namespace bitboard
-
-// Namespace alias for convenience
-namespace bb = bitboard;
 
 #endif // !BITBOARD_H

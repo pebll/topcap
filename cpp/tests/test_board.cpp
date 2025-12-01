@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 
-using namespace b;  // Use namespace alias for convenience
-using namespace bb; // Also need bitboard types
+using namespace board; // Board operations
+using namespace types;  // Types
 
 #define TEST_ALL
 

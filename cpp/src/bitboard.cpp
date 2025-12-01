@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <vector>
 
+using namespace types;
+
 namespace bitboard {
 
 int getBit(Bitboard bitboard, int position) {
