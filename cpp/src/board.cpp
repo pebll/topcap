@@ -54,8 +54,10 @@ int neighbourCount(Board board, bitboard::Coordinates coords) {
 
 std::vector<bitboard::Move> possibleMoves(Board board, bool isWhite) {
   std::vector<bitboard::Move> moves;
-  bitboard::Bitboard bitboard = getBitboard(board, isWhite);
-  std::vector<int> positions = bitboard::getPositions(bitboard);
+  bitboard::Bitboard bitboard = board.white | board.black;
+
+  std::vector<int> positions =
+      bitboard::getPositions(getBitboard(board, isWhite));
   bitboard::Coordinates forbiddenCoords =
       isWhite ? bitboard::Coordinates{0, 0}
               : bitboard::Coordinates{board.N - 1, board.N - 1};

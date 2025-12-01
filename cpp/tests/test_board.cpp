@@ -61,5 +61,25 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
   REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
 }
 
+// Board of size 4
+//         a b c d
+//       4 · · ○ · 4
+//       3 · · ● ○ 3
+//       2 ○ · · ● 2
+//       1 · ● · · 1
+//         a b c d
+
+TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
+  bitboard::Bitboard white = 0b0000'0100'1000'0010;
+  bitboard::Bitboard black = 0b0100'1000'0001'0000;
+  Board board = {white, black, 4};
+  std::vector<Move> whitePossibleMoves = {
+      {{1, 0}, {1, 1}}, {{1, 0}, {2, 0}}, {{3, 1}, {1, 1}}};
+  std::vector<Move> blackPossibleMoves = {
+      {{0, 1}, {0, 0}}, {{0, 1}, {1, 1}}, {{0, 1}, {0, 2}}, {{2, 3}, {0, 3}}};
+  REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
+  REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
+}
+
 #ifndef TEST_ALL
 #endif // TEST_ALL
