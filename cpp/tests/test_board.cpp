@@ -50,14 +50,16 @@ TEST_CASE("Neighbour count works", "[board]") {
 //       2 ● · · · 2
 //       1 · ● · · 1
 //         a b c d
-#ifndef TEST_ALL
 
 TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
   Board board = initialBoard(4);
-  std::vector<Move> whitePossibleMoves = {{1, 0}, {2, 0}};
-  std::vector<Move> blackPossibleMoves = {};
-  REQUIRE(possibleMoves(board, true) == whitePossibleMoves);
-  REQUIRE(possibleMoves(board, false) == blackPossibleMoves);
+  std::vector<Move> whitePossibleMoves = {
+      {{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}, {{0, 1}, {0, 2}}, {{0, 1}, {1, 1}}};
+  std::vector<Move> blackPossibleMoves = {
+      {{2, 3}, {1, 3}}, {{2, 3}, {2, 2}}, {{3, 2}, {3, 1}}, {{3, 2}, {2, 2}}};
+  REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
+  REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
 }
 
+#ifndef TEST_ALL
 #endif // TEST_ALL

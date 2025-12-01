@@ -50,4 +50,9 @@ std::string boardToString(Board board) {
 int neighbourCount(Board board, bitboard::Coordinates coords) {
   return bitboard::neighbourCount(board.white | board.black, coords, board.N);
 }
+
+std::vector<bitboard::Move> possibleMoves(Board board, bool white) {
+  return {};
+}
+
 } // namespace board
