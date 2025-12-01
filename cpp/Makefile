@@ -1,48 +1,72 @@
+# Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 DEBUGFLAGS = -g -O0
+RELEASEFLAGS = -O3 -DNDEBUG
+
+# Directories
+SRCDIR = src
+TESTDIR = tests
+INCLUDEDIR = include
 BUILDDIR = build
 
-# Object files
-BITBOARD_OBJ = $(BUILDDIR)/bitboard.o
-BOARD_OBJ = $(BUILDDIR)/board.o
-TEST_BITBOARD_OBJ = $(BUILDDIR)/test_bitboard.o
-TEST_BOARD_OBJ = $(BUILDDIR)/test_board.o
-TEST_TYPES_OBJ = $(BUILDDIR)/test_types.o
+# Source files
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+TEST_SOURCES = $(wildcard $(TESTDIR)/test_*.cpp)
 
-game: src/main.cpp $(BITBOARD_OBJ) $(BOARD_OBJ)
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) src/main.cpp $(BITBOARD_OBJ) $(BOARD_OBJ) -o $(BUILDDIR)/game
+# Object files (excluding main.cpp for library)
+LIB_OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(filter-out $(SRCDIR)/main.cpp,$(SOURCES)))
+TEST_OBJECTS = $(patsubst $(TESTDIR)/%.cpp,$(BUILDDIR)/%.o,$(TEST_SOURCES))
 
-test: $(BITBOARD_OBJ) $(BOARD_OBJ) $(TEST_BITBOARD_OBJ) $(TEST_BOARD_OBJ) $(TEST_TYPES_OBJ)
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) $(BITBOARD_OBJ) $(BOARD_OBJ) $(TEST_BITBOARD_OBJ) $(TEST_BOARD_OBJ) $(TEST_TYPES_OBJ) -o $(BUILDDIR)/test_game
-	./$(BUILDDIR)/test_game
+# Dependency files (for automatic header dependency tracking)
+LIB_DEPS = $(LIB_OBJECTS:.o=.d)
+TEST_DEPS = $(TEST_OBJECTS:.o=.d)
 
-# Compile bitboard.cpp to object file
-$(BITBOARD_OBJ): src/bitboard.cpp include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c src/bitboard.cpp -o $@
+# Executables
+GAME = $(BUILDDIR)/game
+TEST_GAME = $(BUILDDIR)/test_game
 
-# Compile board.cpp to object file
-$(BOARD_OBJ): src/board.cpp include/board.h include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c src/board.cpp -o $@
+# Default target
+all: $(GAME)
 
-# Compile test_bitboard.cpp to object file
-$(TEST_BITBOARD_OBJ): tests/test_bitboard.cpp include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c tests/test_bitboard.cpp -o $@
+# Build the game executable
+$(GAME): $(SRCDIR)/main.cpp $(LIB_OBJECTS) | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(RELEASEFLAGS) $^ -o $@
 
-# Compile test_board.cpp to object file
-$(TEST_BOARD_OBJ): tests/test_board.cpp include/board.h include/bitboard.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c tests/test_board.cpp -o $@
+# Build and run tests
+test: $(TEST_GAME)
+	./$(TEST_GAME)
 
-# Compile test_types.cpp to object file
-$(TEST_TYPES_OBJ): tests/test_types.cpp include/types.h | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -c tests/test_types.cpp -o $@
+# Build test executable
+$(TEST_GAME): $(LIB_OBJECTS) $(TEST_OBJECTS) | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) $^ -o $@
 
+# Pattern rule: compile source files to object files
+# -MMD generates dependency files, -MP adds phony targets for headers
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -MMD -MP -c $< -o $@
+
+# Pattern rule: compile test files to object files
+$(BUILDDIR)/%.o: $(TESTDIR)/%.cpp | $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -MMD -MP -c $< -o $@
+
+# Include dependency files (if they exist)
+-include $(LIB_DEPS) $(TEST_DEPS)
+
+# Create build directory
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
+# Clean build artifacts
 clean:
 	rm -rf $(BUILDDIR)
 
-.PHONY: test clean game
+# Debug build (with debug flags)
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: $(GAME)
+
+# Release build (with optimization)
+release: CXXFLAGS += $(RELEASEFLAGS)
+release: $(GAME)
+
+.PHONY: all test clean debug release
