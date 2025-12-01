@@ -58,8 +58,8 @@ inline bool sameSet(const std::vector<Move> &lhs,
   std::vector<Move> lshSorted = lhs;
   std::vector<Move> rshSorted = rhs;
   std::sort(lshSorted.begin(), lshSorted.end());
-  std::sort(lshSorted.begin(), lshSorted.end());
-  return lshSorted == lshSorted;
+  std::sort(rshSorted.begin(), rshSorted.end());
+  return lshSorted == rshSorted;
 }
 
 // bitboard operations
