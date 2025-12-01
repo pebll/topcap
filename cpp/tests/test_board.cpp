@@ -4,7 +4,7 @@
 #include <vector>
 
 using namespace board; // Board operations
-using namespace types;  // Types
+using namespace types; // Types
 
 #define TEST_ALL
 
@@ -59,6 +59,7 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
       {{2, 3}, {1, 3}}, {{2, 3}, {2, 2}}, {{3, 2}, {3, 1}}, {{3, 2}, {2, 2}}};
   REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
   REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
+  REQUIRE(sameSet(possibleMoves(board), whitePossibleMoves));
 }
 
 // Board of size 4
@@ -72,13 +73,14 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
 TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board board = {white, black, 4, true};
+  Board board = {white, black, 4, false};
   std::vector<Move> whitePossibleMoves = {
       {{1, 0}, {1, 1}}, {{1, 0}, {2, 0}}, {{3, 1}, {1, 1}}};
   std::vector<Move> blackPossibleMoves = {
       {{0, 1}, {0, 0}}, {{0, 1}, {1, 1}}, {{0, 1}, {0, 2}}, {{2, 3}, {0, 3}}};
   REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
   REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
+  REQUIRE(sameSet(possibleMoves(board), blackPossibleMoves));
 }
 
 #ifndef TEST_ALL

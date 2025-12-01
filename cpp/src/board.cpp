@@ -56,6 +56,10 @@ int neighbourCount(Board board, Coordinates coords) {
   return bitboard::neighbourCount(board.white | board.black, coords, board.N);
 }
 
+std::vector<Move> possibleMoves(Board board) {
+  return possibleMoves(board, board.whiteToPlay);
+}
+
 std::vector<Move> possibleMoves(Board board, bool whiteToPlay) {
   std::vector<Move> moves;
   Bitboard allPiecesBitboard = board.white | board.black;
