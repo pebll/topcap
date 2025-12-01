@@ -8,6 +8,10 @@
 
 namespace bitboard {
 
+// TODO: move all these things (Bitboard, Coordinates, Move & operations to own
+// file)
+// TODO: update makefile to be more generic, supporting the growing size of this
+// project
 using Bitboard = uint64_t;
 
 struct Coordinates {

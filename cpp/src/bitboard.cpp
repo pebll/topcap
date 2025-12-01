@@ -76,6 +76,7 @@ std::vector<int> getPositions(Bitboard bitboard) {
 }
 
 bool isPathBlocked(Bitboard bitboard, Move move, int N) {
+  // TODO: optimize by using bit masks
   int dx = (move.to.x - move.from.x) /
            std::max(1, std::abs(move.to.x - move.from.x));
   int dy = (move.to.y - move.from.y) /

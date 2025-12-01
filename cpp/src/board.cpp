@@ -1,5 +1,6 @@
 #include "../include/board.h"
 #include <string>
+#include <vector>
 
 namespace board {
 
@@ -51,8 +52,21 @@ int neighbourCount(Board board, bitboard::Coordinates coords) {
   return bitboard::neighbourCount(board.white | board.black, coords, board.N);
 }
 
-std::vector<bitboard::Move> possibleMoves(Board board, bool white) {
-  return {};
+std::vector<bitboard::Move> possibleMoves(Board board, bool isWhite) {
+  std::vector<bitboard::Move> moves;
+  bitboard::Bitboard bitboard = getBitboard(board, isWhite);
+  std::vector<int> positions = bitboard::getPositions(bitboard);
+  bitboard::Coordinates forbiddenCoords =
+      isWhite ? bitboard::Coordinates{0, 0}
+              : bitboard::Coordinates{board.N - 1, board.N - 1};
+  for (const int &position : positions) {
+    std::vector<bitboard::Move> pieceMoves = bitboard::possibleMovesFrom(
+        bitboard, bitboard::positionToCoords(position, board.N),
+        forbiddenCoords, board.N);
+    // append pieceMoves to moves
+    moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
+  }
+  return moves;
 }
 
 } // namespace board
