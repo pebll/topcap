@@ -1,4 +1,5 @@
 #include "../include/board.h"
+#include <cassert>
 #include <string>
 #include <vector>
 
@@ -90,6 +91,15 @@ bool isMoveLegal(Board board, Move move) {
     return false;
   }
   return true;
+}
+
+Board makeMove(Board board, Move move) {
+  assert(isMoveLegal(board, move));
+  board.whiteToPlay
+      ? board.white = bitboard::makeMove(board.white, move, board.N)
+      : board.black = bitboard::makeMove(board.black, move, board.N);
+  board.whiteToPlay = !board.whiteToPlay;
+  return board;
 }
 
 } // namespace board

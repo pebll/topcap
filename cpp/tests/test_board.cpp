@@ -58,6 +58,17 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
   REQUIRE(sameSet(possibleMoves(board), whitePossibleMoves));
 }
 
+TEST_CASE("forbiddenCoords works", "[board]") {
+  Board board5 = initialBoard(5);
+  Board board8 = initialBoard(8);
+  REQUIRE(forbiddenCoords(board5) == Coordinates{0, 0});
+  REQUIRE(forbiddenCoords(board8) == Coordinates{0, 0});
+  board5.whiteToPlay = false;
+  board8.whiteToPlay = false;
+  REQUIRE(forbiddenCoords(board5) == Coordinates{4, 4});
+  REQUIRE(forbiddenCoords(board8) == Coordinates{7, 7});
+}
+
 // Board of size 4
 //         a b c d
 //       4 · · ○ · 4
@@ -79,17 +90,6 @@ TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
   REQUIRE(sameSet(possibleMoves(boardBlackToPlay), blackPossibleMoves));
 }
 
-TEST_CASE("forbiddenCoords works", "[board]") {
-  Board board5 = initialBoard(5);
-  Board board8 = initialBoard(8);
-  REQUIRE(forbiddenCoords(board5) == Coordinates{0, 0});
-  REQUIRE(forbiddenCoords(board8) == Coordinates{0, 0});
-  board5.whiteToPlay = false;
-  board8.whiteToPlay = false;
-  REQUIRE(forbiddenCoords(board5) == Coordinates{4, 4});
-  REQUIRE(forbiddenCoords(board8) == Coordinates{7, 7});
-}
-
 TEST_CASE("isMoveLegal works") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
@@ -109,9 +109,25 @@ TEST_CASE("isMoveLegal works") {
   REQUIRE(isMoveLegal(boardBlackToPlay, {{2, 3}, {0, 3}}));
 }
 
-TEST_CASE("makeMove works on correctly played game") {
-  // endif
-  // lj
+// Board of size 4
+//         a b c d
+//       4 · · ○ · 4
+//       3 · · ● ○ 3
+//       2 ○ · · ● 2
+//       1 · ● · · 1
+//         a b c d
+
+TEST_CASE("board::makeMove works") {
+  bitboard::Bitboard white = 0b0000'0100'1000'0010;
+  bitboard::Bitboard black = 0b0100'1000'0001'0000;
+  Board boardWTP = {white, black, 4, true};
+  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).white == 0b0000'0100'1010'0000);
+  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).black == black);
+  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).whiteToPlay == false);
+  Board boardBTP = {white, black, 4, false};
+  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).white == white);
+  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).black == 0b0100'1000'0000'0001);
+  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).whiteToPlay == true);
 }
 
 #ifndef TEST_ALL
