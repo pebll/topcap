@@ -131,4 +131,11 @@ std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
   return moves;
 }
 
+Bitboard makeMove(Bitboard bitboard, Move move, int N) {
+  assert(isMoveFeasible(bitboard, move, N));
+  bitboard = clearBit(bitboard, move.from, N);
+  bitboard = setBit(bitboard, move.to, N);
+  return bitboard;
+}
+
 } // namespace bitboard

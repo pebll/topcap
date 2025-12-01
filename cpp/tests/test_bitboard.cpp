@@ -5,7 +5,7 @@
 #include <vector>
 
 using namespace bitboard; // Bitboard operations
-using namespace types; // Types
+using namespace types;    // Types
 
 TEST_CASE("getBit returns correct bit", "[bitboard]") {
   Bitboard board = 0b1001;
@@ -167,4 +167,12 @@ TEST_CASE(
       sameSet(possibleMovesFrom(bitboardA, {1, 0}, {0, 0}, N), forbidden00));
   REQUIRE(
       sameSet(possibleMovesFrom(bitboardA, {1, 0}, {3, 3}, N), forbidden33));
+}
+
+TEST_CASE("bitboard::makeMove works", "[bitboard]") {
+  Bitboard bitboardA = 0b0011'0000'0001'0010;
+  int N = 4;
+  REQUIRE(makeMove(bitboardA, {{0, 1}, {0, 2}}, N) == 0b0011'0001'0000'0010);
+  REQUIRE(makeMove(bitboardA, {{1, 3}, {1, 1}}, N) == 0b0001'0000'0011'0010);
+  REQUIRE(makeMove(bitboardA, {{1, 3}, {2, 3}}, N) == 0b0101'0000'0001'0010);
 }

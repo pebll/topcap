@@ -24,12 +24,13 @@ Coordinates positionToCoords(int position, int N);
 // utility functions
 int neighbourCount(Bitboard bitboard, Coordinates coords, int N);
 std::vector<int> getPositions(Bitboard bitboard);
-bool isMoveFeasible(Bitboard bitboard, Move move, int N);
 // ^ only checks bounds and if is not blocked
+bool isMoveFeasible(Bitboard bitboard, Move move, int N);
 bool isPathBlocked(Bitboard bitboard, Move move, int N);
-// forbiddenPosition is the own base (white can't move into white base!)
 std::vector<Move> possibleMovesFrom(Bitboard bitboard, Coordinates coords,
                                     Coordinates forbiddenCoords, int N);
+// ^ forbiddenPosition is the own base (white can't move into white base!)
+Bitboard makeMove(Bitboard bitboard, Move move, int N);
 
 } // namespace bitboard
 
