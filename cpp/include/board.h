@@ -20,7 +20,8 @@ std::string boardToString(Board board);
 std::string mStringHeader(int N);
 
 int neighbourCount(Board board, Coordinates coords);
-std::vector<Move> possibleMoves(Board board, bool isWhite);
+std::vector<Move> possibleMoves(Board board, bool whiteToPlay);
+Board makeMove(Board board, Move move);
 
 } // namespace board
 

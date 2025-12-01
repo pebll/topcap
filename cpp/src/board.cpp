@@ -17,7 +17,7 @@ Board initialBoard(int N) {
     black = bitboard::setBit(
         black, bitboard::coordsToPosition({N - n + i, N - 1 - i}, N));
   }
-  return {white, black, N};
+  return {white, black, N, true}; // white starts
 }
 
 std::string mStringHeader(int N) {
@@ -56,14 +56,14 @@ int neighbourCount(Board board, Coordinates coords) {
   return bitboard::neighbourCount(board.white | board.black, coords, board.N);
 }
 
-std::vector<Move> possibleMoves(Board board, bool isWhite) {
+std::vector<Move> possibleMoves(Board board, bool whiteToPlay) {
   std::vector<Move> moves;
   Bitboard allPiecesBitboard = board.white | board.black;
 
   std::vector<int> positions =
-      bitboard::getPositions(getBitboard(board, isWhite));
+      bitboard::getPositions(getBitboard(board, whiteToPlay));
   Coordinates forbiddenCoords =
-      isWhite ? Coordinates{0, 0} : Coordinates{board.N - 1, board.N - 1};
+      whiteToPlay ? Coordinates{0, 0} : Coordinates{board.N - 1, board.N - 1};
   for (const int &position : positions) {
     std::vector<Move> pieceMoves = bitboard::possibleMovesFrom(
         allPiecesBitboard, bitboard::positionToCoords(position, board.N),

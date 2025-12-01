@@ -24,6 +24,7 @@ struct Board {
   Bitboard white;
   Bitboard black;
   int N;
+  bool whiteToPlay;
 };
 
 inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
@@ -72,8 +73,8 @@ inline bool sameSet(const std::vector<Move> &lhs,
   return lshSorted == rshSorted;
 }
 
-inline Bitboard getBitboard(const Board &board, const bool isWhite) {
-  return isWhite ? board.white : board.black;
+inline Bitboard getBitboard(const Board &board, const bool whiteToPlay) {
+  return whiteToPlay ? board.white : board.black;
 }
 
 } // namespace types

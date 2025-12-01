@@ -91,11 +91,11 @@ TEST_CASE("sameSet works correctly", "[test_types]") {
 }
 
 TEST_CASE("Board operator== works correctly", "[test_types]") {
-  Board board1 = {0b1001, 0b0110, 4};
-  Board board2 = {0b1001, 0b0110, 4};
-  Board board3 = {0b1001, 0b0110, 5}; // Different N (but operator== ignores N)
-  Board board4 = {0b1000, 0b0110, 4}; // Different white
-  Board board5 = {0b1001, 0b0100, 4}; // Different black
+  Board board1 = {0b1001, 0b0110, 4, true};
+  Board board2 = {0b1001, 0b0110, 4, true};
+  Board board3 = {0b1001, 0b0110, 5, true}; // Different N (but operator== ignores N)
+  Board board4 = {0b1000, 0b0110, 4, true}; // Different white
+  Board board5 = {0b1001, 0b0100, 4, true}; // Different black
 
   REQUIRE(board1 == board2);
   REQUIRE(board1 == board3); // operator== only compares white and black, not N
@@ -106,13 +106,13 @@ TEST_CASE("Board operator== works correctly", "[test_types]") {
 TEST_CASE("getBitboard returns correct bitboard", "[test_types]") {
   Bitboard white = 0b1001;
   Bitboard black = 0b0110;
-  Board board = {white, black, 4};
+  Board board = {white, black, 4, true};
 
   REQUIRE(getBitboard(board, true) == white);
   REQUIRE(getBitboard(board, false) == black);
 
   // Test with different boards
-  Board board2 = {0b1111, 0b0000, 6};
+  Board board2 = {0b1111, 0b0000, 6, false};
   REQUIRE(getBitboard(board2, true) == 0b1111);
   REQUIRE(getBitboard(board2, false) == 0b0000);
 }

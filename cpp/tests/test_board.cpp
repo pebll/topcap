@@ -72,7 +72,7 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
 TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board board = {white, black, 4};
+  Board board = {white, black, 4, true};
   std::vector<Move> whitePossibleMoves = {
       {{1, 0}, {1, 1}}, {{1, 0}, {2, 0}}, {{3, 1}, {1, 1}}};
   std::vector<Move> blackPossibleMoves = {
