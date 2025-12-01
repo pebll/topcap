@@ -53,28 +53,43 @@ std::string boardToString(Board board) {
 }
 
 int neighbourCount(Board board, Coordinates coords) {
-  return bitboard::neighbourCount(board.white | board.black, coords, board.N);
+  return bitboard::neighbourCount(getTotalBitboard(board), coords, board.N);
 }
 
 std::vector<Move> possibleMoves(Board board) {
-  return possibleMoves(board, board.whiteToPlay);
-}
-
-std::vector<Move> possibleMoves(Board board, bool whiteToPlay) {
   std::vector<Move> moves;
-  Bitboard allPiecesBitboard = board.white | board.black;
-
   std::vector<int> positions =
-      bitboard::getPositions(getBitboard(board, whiteToPlay));
-  Coordinates forbiddenCoords =
-      whiteToPlay ? Coordinates{0, 0} : Coordinates{board.N - 1, board.N - 1};
+      bitboard::getPositions(getCurrentColorBitboard(board));
   for (const int &position : positions) {
     std::vector<Move> pieceMoves = bitboard::possibleMovesFrom(
-        allPiecesBitboard, bitboard::positionToCoords(position, board.N),
-        forbiddenCoords, board.N);
+        getTotalBitboard(board), bitboard::positionToCoords(position, board.N),
+        forbiddenCoords(board), board.N);
     moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
   }
   return moves;
+}
+
+Coordinates forbiddenCoords(Board board) {
+  return board.whiteToPlay ? Coordinates{0, 0}
+                           : Coordinates{board.N - 1, board.N - 1};
+}
+
+bool isMoveLegal(Board board, Move move) {
+  // TODO: here also create an Optim version
+  if (!bitboard::isMoveFeasible(getTotalBitboard(board), move, board.N)) {
+    return false;
+  }
+  if (!bitboard::getBit(getCurrentColorBitboard(board), move.from, board.N)) {
+    return false;
+  }
+  if (std::abs(move.from.x - move.to.x) + std::abs(move.from.y - move.to.y) !=
+      neighbourCount(board, move.from)) {
+    return false;
+  }
+  if (move.to == forbiddenCoords(board)) {
+    return false;
+  }
+  return true;
 }
 
 } // namespace board

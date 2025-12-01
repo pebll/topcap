@@ -74,8 +74,12 @@ inline bool sameSet(const std::vector<Move> &lhs,
   return lshSorted == rshSorted;
 }
 
-inline Bitboard getBitboard(const Board &board, const bool whiteToPlay) {
-  return whiteToPlay ? board.white : board.black;
+inline Bitboard getCurrentColorBitboard(const Board &board) {
+  return board.whiteToPlay ? board.white : board.black;
+}
+
+inline Bitboard getTotalBitboard(const Board &board) {
+  return board.white | board.black;
 }
 
 } // namespace types

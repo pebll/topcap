@@ -55,10 +55,6 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
   Board board = initialBoard(4);
   std::vector<Move> whitePossibleMoves = {
       {{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}, {{0, 1}, {0, 2}}, {{0, 1}, {1, 1}}};
-  std::vector<Move> blackPossibleMoves = {
-      {{2, 3}, {1, 3}}, {{2, 3}, {2, 2}}, {{3, 2}, {3, 1}}, {{3, 2}, {2, 2}}};
-  REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
-  REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
   REQUIRE(sameSet(possibleMoves(board), whitePossibleMoves));
 }
 
@@ -73,14 +69,49 @@ TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
 TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board board = {white, black, 4, false};
+  Board boardWhiteToPlay = {white, black, 4, true};
+  Board boardBlackToPlay = {white, black, 4, false};
   std::vector<Move> whitePossibleMoves = {
       {{1, 0}, {1, 1}}, {{1, 0}, {2, 0}}, {{3, 1}, {1, 1}}};
   std::vector<Move> blackPossibleMoves = {
       {{0, 1}, {0, 0}}, {{0, 1}, {1, 1}}, {{0, 1}, {0, 2}}, {{2, 3}, {0, 3}}};
-  REQUIRE(sameSet(possibleMoves(board, true), whitePossibleMoves));
-  REQUIRE(sameSet(possibleMoves(board, false), blackPossibleMoves));
-  REQUIRE(sameSet(possibleMoves(board), blackPossibleMoves));
+  REQUIRE(sameSet(possibleMoves(boardWhiteToPlay), whitePossibleMoves));
+  REQUIRE(sameSet(possibleMoves(boardBlackToPlay), blackPossibleMoves));
+}
+
+TEST_CASE("forbiddenCoords works", "[board]") {
+  Board board5 = initialBoard(5);
+  Board board8 = initialBoard(8);
+  REQUIRE(forbiddenCoords(board5) == Coordinates{0, 0});
+  REQUIRE(forbiddenCoords(board8) == Coordinates{0, 0});
+  board5.whiteToPlay = false;
+  board8.whiteToPlay = false;
+  REQUIRE(forbiddenCoords(board5) == Coordinates{4, 4});
+  REQUIRE(forbiddenCoords(board8) == Coordinates{7, 7});
+}
+
+TEST_CASE("isMoveLegal works") {
+  bitboard::Bitboard white = 0b0000'0100'1000'0010;
+  bitboard::Bitboard black = 0b0100'1000'0001'0000;
+  Board boardWhiteToPlay = {white, black, 4, true};
+  REQUIRE(isMoveLegal(boardWhiteToPlay, {{1, 0}, {1, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{2, 0}, {1, 0}}));
+  REQUIRE(isMoveLegal(boardWhiteToPlay, {{3, 1}, {1, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{0, 1}, {2, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{0, 1}, {1, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{2, 3}, {0, 3}}));
+  Board boardBlackToPlay = {white, black, 4, false};
+  REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{1, 0}, {1, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{2, 0}, {1, 0}}));
+  REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{3, 1}, {1, 1}}));
+  REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{0, 1}, {2, 1}}));
+  REQUIRE(isMoveLegal(boardBlackToPlay, {{0, 1}, {1, 1}}));
+  REQUIRE(isMoveLegal(boardBlackToPlay, {{2, 3}, {0, 3}}));
+}
+
+TEST_CASE("makeMove works on correctly played game") {
+  // endif
+  // lj
 }
 
 #ifndef TEST_ALL

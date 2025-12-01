@@ -21,7 +21,8 @@ std::string mStringHeader(int N);
 
 int neighbourCount(Board board, Coordinates coords);
 std::vector<Move> possibleMoves(Board board);
-std::vector<Move> possibleMoves(Board board, bool whiteToPlay);
+Coordinates forbiddenCoords(Board board);
+bool isMoveLegal(Board board, Move move);
 Board makeMove(Board board, Move move);
 
 } // namespace board
