@@ -1,6 +1,7 @@
 #include "../include/board.h"
 #include "catch.hpp"
 #include <string>
+#include <vector>
 
 using namespace b;  // Use namespace alias for convenience
 using namespace bb; // Also need bitboard types
@@ -42,8 +43,6 @@ TEST_CASE("Neighbour count works", "[board]") {
   REQUIRE(neighbourCount(board, {3, 0}) == 1);
 }
 
-#ifndef TEST_ALL
-
 // Board of size 4
 //         a b c d
 //       4 · · ○ · 4
@@ -51,10 +50,14 @@ TEST_CASE("Neighbour count works", "[board]") {
 //       2 ● · · · 2
 //       1 · ● · · 1
 //         a b c d
+#ifndef TEST_ALL
 
-TEST_CASE("Full Move generation works", "[board]") {
+TEST_CASE("Initial 4x4 possibleMoves works", "[board]") {
   Board board = initialBoard(4);
-  REQUIRE(possibleMoves(board, true) == 0);
+  std::vector<Move> whitePossibleMoves = {{1, 0}, {2, 0}};
+  std::vector<Move> blackPossibleMoves = {};
+  REQUIRE(possibleMoves(board, true) == whitePossibleMoves);
+  REQUIRE(possibleMoves(board, false) == blackPossibleMoves);
 }
 
 #endif // TEST_ALL

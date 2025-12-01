@@ -1,6 +1,7 @@
 #ifndef BITBOARD_H
 #define BITBOARD_H
 
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -50,6 +51,15 @@ inline bool operator<(const Move &lhs, const Move &rhs) {
   if (lhs.to.x != rhs.to.x)
     return lhs.to.x < rhs.to.x;
   return lhs.to.y < rhs.to.y;
+}
+
+inline bool sameSet(const std::vector<Move> &lhs,
+                    const std::vector<Move> &rhs) {
+  std::vector<Move> lshSorted = lhs;
+  std::vector<Move> rshSorted = rhs;
+  std::sort(lshSorted.begin(), lshSorted.end());
+  std::sort(lshSorted.begin(), lshSorted.end());
+  return lshSorted == lshSorted;
 }
 
 // bitboard operations

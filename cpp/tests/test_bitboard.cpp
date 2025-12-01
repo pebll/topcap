@@ -139,15 +139,11 @@ TEST_CASE("possibleMovesFrom works", "[bitboard]") {
   std::vector<Move> from11 = {{{1, 1}, {3, 1}}};
   std::vector<Move> from10 = {{{1, 0}, {3, 0}}};
   std::vector<Move> from13 = {{{1, 3}, {1, 2}}, {{1, 3}, {2, 3}}};
-  REQUIRE(possibleMovesFrom(bitboardB, {1, 1}, blackBase, N) == from11);
-  REQUIRE(possibleMovesFrom(bitboardB, {0, 1}, blackBase, N).size() == 0);
-  REQUIRE(possibleMovesFrom(bitboardB, {1, 0}, blackBase, N) == from10);
-  std::vector<Move> possible13 =
-      possibleMovesFrom(bitboardB, {1, 3}, blackBase, N);
-  std::sort(possible13.begin(), possible13.end());
-  REQUIRE(possible13 == from13);
-  // emtpy from
-  REQUIRE(possibleMovesFrom(bitboardB, {2, 1}, blackBase, N).size() == 0);
+  REQUIRE(sameSet(possibleMovesFrom(bitboardB, {1, 1}, blackBase, N), from11));
+  REQUIRE(sameSet(possibleMovesFrom(bitboardB, {0, 1}, blackBase, N), {}));
+  REQUIRE(sameSet(possibleMovesFrom(bitboardB, {1, 0}, blackBase, N), from10));
+  REQUIRE(sameSet(possibleMovesFrom(bitboardB, {1, 3}, blackBase, N), from13));
+  REQUIRE(sameSet(possibleMovesFrom(bitboardB, {2, 1}, blackBase, N), {}));
 }
 
 // Board of size 4 (A)
@@ -166,14 +162,8 @@ TEST_CASE(
   std::vector<Move> forbidden00 = {{{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}};
   std::vector<Move> forbidden33 = {
       {{1, 0}, {2, 0}}, {{1, 0}, {1, 1}}, {{1, 0}, {0, 0}}};
-  std::sort(forbidden00.begin(), forbidden00.end());
-  std::sort(forbidden33.begin(), forbidden33.end());
-  std::vector<Move> resultForbidden00 =
-      possibleMovesFrom(bitboardA, {1, 0}, {0, 0}, N);
-  std::sort(resultForbidden00.begin(), resultForbidden00.end());
-  std::vector<Move> resultForbidden33 =
-      possibleMovesFrom(bitboardA, {1, 0}, {3, 3}, N);
-  std::sort(resultForbidden33.begin(), resultForbidden33.end());
-  REQUIRE(forbidden00 == resultForbidden00);
-  REQUIRE(forbidden33 == resultForbidden33);
+  REQUIRE(
+      sameSet(possibleMovesFrom(bitboardA, {1, 0}, {0, 0}, N), forbidden00));
+  REQUIRE(
+      sameSet(possibleMovesFrom(bitboardA, {1, 0}, {3, 3}, N), forbidden33));
 }
