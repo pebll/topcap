@@ -10,8 +10,8 @@ TESTDIR = tests
 INCLUDEDIR = include
 BUILDDIR = build
 
-# Source files
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+# Source files (including subdirectories)
+SOURCES = $(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*/*.cpp)
 TEST_SOURCES = $(wildcard $(TESTDIR)/test_*.cpp)
 
 # Object files (excluding main.cpp for library)
@@ -44,6 +44,7 @@ $(TEST_GAME): $(LIB_OBJECTS) $(TEST_OBJECTS) | $(BUILDDIR)
 # Pattern rule: compile source files to object files
 # -MMD generates dependency files, -MP adds phony targets for headers
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -MMD -MP -c $< -o $@
 
 # Pattern rule: compile test files to object files
