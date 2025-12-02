@@ -1,6 +1,7 @@
 #include "../include/board.h"
 #include <cassert>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace types;
@@ -100,6 +101,24 @@ Board makeMove(Board board, Move move) {
       : board.black = bitboard::makeMove(board.black, move, board.N);
   board.whiteToPlay = !board.whiteToPlay;
   return board;
+}
+
+std::pair<bool, bool> terminalState(Board board) {
+  // be sure that current player is not in opponent goal
+  assert(!bitboard::getBit(getCurrentColorBitboard(board),
+                           !board.whiteToPlay
+                               ? Coordinates{0, 0}
+                               : Coordinates{board.N - 1, board.N - 1},
+                           board.N)); // TODO: refactor this board.white &
+                                      // board.black to an array approach
+  Bitboard opponent = board.whiteToPlay ? board.black : board.white;
+  if (bitboard::getBit(opponent, forbiddenCoords(board), board.N)) {
+    return {true, !board.whiteToPlay}; // opponent reached base
+  }
+  if (possibleMoves(board).size() == 0) {
+    return {true, !board.whiteToPlay}; // no moves left
+  }
+  return {false, false};
 }
 
 } // namespace board

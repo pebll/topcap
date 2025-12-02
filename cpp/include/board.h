@@ -4,6 +4,7 @@
 #include "bitboard.h"
 #include "types.h"
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace board {
@@ -24,6 +25,7 @@ std::vector<Move> possibleMoves(Board board);
 Coordinates forbiddenCoords(Board board);
 bool isMoveLegal(Board board, Move move);
 Board makeMove(Board board, Move move);
+std::pair<bool, bool> terminalState(Board board); // (isTerminal, isWinnerWhite)
 
 } // namespace board
 

@@ -130,5 +130,42 @@ TEST_CASE("board::makeMove works") {
   REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).whiteToPlay == true);
 }
 
+// Board of size 4
+//         a b c d
+//       4 · · ○ · 4
+//       3 · · ● ○ 3
+//       2 ○ · · ● 2
+//       1 · ● · · 1
+//         a b c d
+
+TEST_CASE("isTerminal & isWinnerWhite detects base Reached", "[board]") {
+  bitboard::Bitboard white = 0b0000'0100'1000'0010;
+  bitboard::Bitboard blackNotReached = 0b0100'1000'0001'0000;
+  bitboard::Bitboard blackReached = 0b0100'1000'0000'0001;
+  Board boardNotReached = {white, blackNotReached, 4, true};
+  Board boardReached = {white, blackReached, 4, true};
+  REQUIRE_FALSE(terminalState(boardNotReached).first);
+  REQUIRE(terminalState(boardReached).first);
+  REQUIRE_FALSE(terminalState(boardReached).second);
+}
+
+// Board of size 4
+//         a b c d
+//       4 · ● ○ · 4
+//       3 · · ● ○ 3
+//       2 ○ · · ● 2
+//       1 · · · · 1
+//         a b c d
+
+TEST_CASE("isTerminal & isWinnerWhite detects no moves left", "[board]") {
+  bitboard::Bitboard white = 0b0010'0100'1000'0000;
+  bitboard::Bitboard black = 0b0100'1000'0001'0000;
+  Board boardWTP = {white, black, 4, true};
+  Board boardBTP = {white, black, 4, false};
+  REQUIRE_FALSE(terminalState(boardWTP).first);
+  REQUIRE(terminalState(boardBTP).first);
+  REQUIRE(terminalState(boardBTP).second);
+}
+
 #ifndef TEST_ALL
 #endif // TEST_ALL
