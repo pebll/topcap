@@ -73,6 +73,23 @@ TEST_CASE("tileToCoords converts correctly", "[utils]") {
     REQUIRE(utils::tileToCoords("d4") == Coordinates{3, 3});
 }
 
+TEST_CASE("coordsToTile converts correctly", "[utils]") {
+    REQUIRE(utils::coordsToTile(Coordinates{0, 0}, 4) == "a1");
+    REQUIRE(utils::coordsToTile(Coordinates{0, 1}, 4) == "a2");
+    REQUIRE(utils::coordsToTile(Coordinates{1, 0}, 4) == "b1");
+    REQUIRE(utils::coordsToTile(Coordinates{3, 3}, 4) == "d4");
+    REQUIRE(utils::coordsToTile(Coordinates{5, 5}, 6) == "f6");
+}
+
+TEST_CASE("tileToCoords and coordsToTile are inverse", "[utils]") {
+    std::vector<std::string> tiles = {"a1", "a2", "b1", "c3", "d4", "f6"};
+    for (const auto& tile : tiles) {
+        Coordinates coords = utils::tileToCoords(tile);
+        std::string back = utils::coordsToTile(coords, 6);
+        REQUIRE(back == tile);
+    }
+}
+
 TEST_CASE("Human parseMove works", "[human_player]") {
     // Test "a1 a2" format
     Move move1 = Human::parseMove("a1 a2");

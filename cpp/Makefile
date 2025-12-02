@@ -3,6 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 DEBUGFLAGS = -g -O0
 RELEASEFLAGS = -O3 -DNDEBUG
+PROFILEFLAGS = -pg
 
 # Directories
 SRCDIR = src
@@ -70,4 +71,8 @@ debug: $(GAME)
 release: CXXFLAGS += $(RELEASEFLAGS)
 release: $(GAME)
 
-.PHONY: all test clean debug release
+# Profile build (with gprof)
+profile: CXXFLAGS += $(PROFILEFLAGS)
+profile: $(GAME)
+
+.PHONY: all test clean debug release profile
