@@ -6,7 +6,7 @@
 
 int main() {
   int N = 6;
-  int games = 2000;
+  int games = 20000;
 
   // std::cout << "Enter your board size (N) [4-8]: ";
   // std::cin >> N;
@@ -18,7 +18,7 @@ int main() {
   // Start profiling
   auto start = std::chrono::high_resolution_clock::now();
 
-  // game::runGame(N, &randi, &rando, true);
+  game::runGame(N, &randi, &rando, true);
   int steps = 0;
   for (int i = 0; i < games; i++) {
     if ((i + 1) % 100 == 0) {

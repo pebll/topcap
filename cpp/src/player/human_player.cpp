@@ -23,10 +23,11 @@ Move Human::getMove(const Board &board) {
     auto moves = board::possibleMoves(board);
     std::cout << "Available moves (" << moves.size() << "): ";
     for (size_t i = 0; i < moves.size(); i++) {
-      std::string fromTile = utils::coordsToTile(moves[i].from, board.N);
-      std::string toTile = utils::coordsToTile(moves[i].to, board.N);
+      std::string fromTile = utils::coordsToTile(moves[i].from);
+      std::string toTile = utils::coordsToTile(moves[i].to);
       std::cout << fromTile << "-" << toTile;
-      if (i < moves.size() - 1) std::cout << ", ";
+      if (i < moves.size() - 1)
+        std::cout << ", ";
     }
     std::cout << std::endl;
   }

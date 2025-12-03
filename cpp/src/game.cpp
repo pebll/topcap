@@ -32,8 +32,8 @@ int runGame(int N, Player *white, Player *black, bool verbose) {
     Move move = currentPlayer->getMove(board);
 
     if (verbose) {
-      std::string fromTile = utils::coordsToTile(move.from, board.N);
-      std::string toTile = utils::coordsToTile(move.to, board.N);
+      std::string fromTile = utils::coordsToTile(move.from);
+      std::string toTile = utils::coordsToTile(move.to);
       std::cout << currentPlayer->getName() << " moved from " << fromTile
                 << " to " << toTile << std::endl;
     }
