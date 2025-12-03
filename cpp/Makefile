@@ -5,6 +5,9 @@ DEBUGFLAGS = -g -O0
 RELEASEFLAGS = -O3 -DNDEBUG
 PROFILEFLAGS = -pg
 
+# Build mode flags (defaults to release)
+BUILDFLAGS = $(RELEASEFLAGS)
+
 # Directories
 SRCDIR = src
 TESTDIR = tests
@@ -32,7 +35,7 @@ all: $(GAME)
 
 # Build the game executable
 $(GAME): $(SRCDIR)/main.cpp $(LIB_OBJECTS) | $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $(RELEASEFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(BUILDFLAGS) $^ -o $@
 
 # Build and run tests
 test: $(TEST_GAME)
@@ -46,7 +49,7 @@ $(TEST_GAME): $(LIB_OBJECTS) $(TEST_OBJECTS) | $(BUILDDIR)
 # -MMD generates dependency files, -MP adds phony targets for headers
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(DEBUGFLAGS) -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(BUILDFLAGS) -MMD -MP -c $< -o $@
 
 # Pattern rule: compile test files to object files
 $(BUILDDIR)/%.o: $(TESTDIR)/%.cpp | $(BUILDDIR)
@@ -64,15 +67,15 @@ clean:
 	rm -rf $(BUILDDIR)
 
 # Debug build (with debug flags)
-debug: CXXFLAGS += $(DEBUGFLAGS)
-debug: $(GAME)
+debug: BUILDFLAGS = $(DEBUGFLAGS)
+debug: clean $(GAME)
 
 # Release build (with optimization)
-release: CXXFLAGS += $(RELEASEFLAGS)
-release: $(GAME)
+release: BUILDFLAGS = $(RELEASEFLAGS)
+release: clean $(GAME)
 
 # Profile build (with gprof)
-profile: CXXFLAGS += $(PROFILEFLAGS)
-profile: $(GAME)
+profile: BUILDFLAGS = $(PROFILEFLAGS)
+profile: clean $(GAME)
 
 .PHONY: all test clean debug release profile
