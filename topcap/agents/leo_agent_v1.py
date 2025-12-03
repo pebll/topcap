@@ -10,7 +10,7 @@ class LeoAgentV1(ReinforcementLearningAgent):
     def __init__(self, name: str, verbose: bool = True, decay: float = 0.95, epsilon: float = 0.2, alpha: float = 0.2, vv: bool = False):
         classname = "leo_agent_v1"
         super().__init__(classname, name, verbose, decay, vv)
-        self.params: dict[str, float] = {} # state -> (value, n)
+        self.params: dict[int, float] = {} # state -> (value, n)
         self.epsilon: float = epsilon # for epsilon greedy
         self.alpha: float = alpha # learning rate
         self.game_history: list[Board] = []

@@ -30,13 +30,13 @@ Solution: implement the `__hash__` function that will convert the board to a int
 ### Solution
 
 Encode the position of each piece into 6 bit (36 possible squares, fits in 2^6 = 64)
-Pack into a single 64 bit integer (8 * 6 = 48 fits in 64)
+Pack into a single 64 bit integer (8 \* 6 = 48 fits in 64)
 
 Implement `to_hash()` and `from_hash()` to more efficiently store board states
 
 ### Results
 
- ---- DEPTH = 3 ----
+---- DEPTH = 3 ----
 
 - States per second: 531.4 /s
 - Time to complete : 1.594 s
@@ -44,46 +44,46 @@ Implement `to_hash()` and `from_hash()` to more efficiently store board states
 
 -> 100 times BETTER!
 
-   cum(s)    self(s)   calls        %  name
-    1.7 s      0.0 s       1     100%  bfs:10
-    0.8 s      0.0 s    1162      45%    move:31
-    0.6 s      0.1 s    1162      33%      _update_piece_positions:144
-    0.5 s      0.1 s   57855      28%        get_tile_content:121
-    0.5 s      0.1 s   57855      28%      get_tile_content:121
-    0.5 s      0.3 s    3488      29%    to_hash:205
+cum(s) self(s) calls % name
+1.7 s 0.0 s 1 100% bfs:10
+0.8 s 0.0 s 1162 45% move:31
+0.6 s 0.1 s 1162 33% \_update_piece_positions:144
+0.5 s 0.1 s 57855 28% get_tile_content:121
+0.5 s 0.1 s 57855 28% get_tile_content:121
+0.5 s 0.3 s 3488 29% to_hash:205
 
 -> now it seems that the `get_tile_content` is very slow..
 
- ---- DEPTH = 4 ----
+---- DEPTH = 4 ----
 
 - States per second: 367.7 /s
 - Time to complete : 11.690 s
 - Number of states : 4298
 
- ---- 100 GAMES - Randi VS Rando ----
+  ---- 100 GAMES - Randi VS Rando ----
 
 - Games per second: 6.8 /s
 - States per second: 208.1 /s
 - Number of states: 3078
 - Time to complete : 14.788 s
 
-   cum(s)    self(s)   calls        %  name
-   14.8 s      0.0 s     100     100%  _run_single_game:26
-   14.8 s      0.0 s     100     100%    run_game:42
-    7.6 s      0.0 s    3178      51%      _game_step:67
-    6.7 s      0.8 s  135124      45%        move_is_valid:43
-    3.3 s      0.0 s    3178      22%        get_win_reason:96
-    3.8 s      0.0 s    3178      26%      _print_game_state:105
-    9.7 s      0.1 s    9517      66%        get_all_valid_moves:88
-    3.3 s      0.0 s    3178      22%      get_move:11
-    9.7 s      0.1 s    9517      66%        get_all_valid_moves:88
+  cum(s) self(s) calls % name
+  14.8 s 0.0 s 100 100% \_run_single_game:26
+  14.8 s 0.0 s 100 100% run_game:42
+  7.6 s 0.0 s 3178 51% \_game_step:67
+  6.7 s 0.8 s 135124 45% move_is_valid:43
+  3.3 s 0.0 s 3178 22% get_win_reason:96
+  3.8 s 0.0 s 3178 26% \_print_game_state:105
+  9.7 s 0.1 s 9517 66% get_all_valid_moves:88
+  3.3 s 0.0 s 3178 22% get_move:11
+  9.7 s 0.1 s 9517 66% get_all_valid_moves:88
 
 -> loosing 150 games/s when running actual games (with randoms) compared to raw DFS
 
 ### Conclusion
 
-->  `get_tile_content` is very slow..
-->  `get_all_valid_moves` is very slow..
+-> `get_tile_content` is very slow..
+-> `get_all_valid_moves` is very slow..
 -> Running games speed is 208 states/s
 -> DFS speed is 350 states/s
 
@@ -111,7 +111,7 @@ THIRD PASS:
 FIRST PASS:
 
 Beginning benchmarking RUN 50 GAMES performance
- ---- 50 GAMES - Randi VS Rando ----
+---- 50 GAMES - Randi VS Rando ----
 
 - Games per second: 13.5 /s
 - States per second: 378.1 /s
@@ -120,14 +120,14 @@ Beginning benchmarking RUN 50 GAMES performance
 
 SECOND PASS:
 
- ---- 50 GAMES - Randi VS Rando ----
+---- 50 GAMES - Randi VS Rando ----
 
 - Games per second: 22.8 /s
 - States per second: 705.7 /s
 - Number of states: 1546
 - Time to complete : 2.191 s
 
- ---- DEPTH = 4 ----
+  ---- DEPTH = 4 ----
 
 - States per second: 975.4 /s
 - Time to complete : 7.676 s
@@ -135,18 +135,28 @@ SECOND PASS:
 
 THIRD PASS:
 
- ---- DEPTH = 4 ----
+---- DEPTH = 4 ----
 
 - States per second: 2348.5 /s
 - Time to complete : 3.188 s
 - Number of states : 7487
 
- ---- 50 GAMES - Randi VS Rando ----
+  ---- 50 GAMES - Randi VS Rando ----
 
 - Games per second: 40.9 /s
 - States per second: 1105.2 /s
 - Number of states: 1350
 - Time to complete : 1.222 s
+
+---- DEPTH = 7 ----
+
+- States per second: 617.6 /s
+- Time to complete : 1530.332 s (~20 mins)
+- Number of states : 945171
+
+  cum(s) self(s) calls % name
+  1530.3 s 24.9 s 1 100% bfs:11
+  1155.8 s 1155.8 s 2268334 76% <method 'pop' of 'list' objects>:0
 
 ### Conclusion
 
@@ -167,7 +177,31 @@ Crazy!!
 
 TOTAL:
 -> Running games speed is 1100 states/s (5x boost)
-  on ThinkCenter this is DOUBLE: 1600 states /s
+on ThinkCenter this is DOUBLE: 2700 states /s
 -> DFS speed is 2300 states/s (before: 350/s -> ~7x boost)
-  on ThinkCenter this is 2000 states/s!!! (DOUBLE)
-  (DFS 5 has 45k states! DFS 4 has 7.5k)
+on ThinkCenter this is 6000 states/s!!! (DOUBLE)
+(DFS 7 has 1M states! DFS 4 has 7.5k)
+
+## Unneccessary function calls
+
+### Solution
+
+- Remove the Unneccessary \_print_game_state call
+- Remove triple to_hash call while we only need it once
+
+### ResultsBeginning benchmarking RUN 250 GAMES performance
+
+ThinkCenter:
+---- 250 GAMES - Randi VS Rando ----
+
+- Games per second: 152.1 /s
+- States per second: 4688.8 /s
+- Number of states: 7705
+
+Beginning benchmarking DFS 6 performance
+---- DEPTH = 6 ----
+
+- States per second: 9095.9 /s
+- Time to complete : 25.235 s
+- Number of states : 229540
+- Time to complete : 1.643 s

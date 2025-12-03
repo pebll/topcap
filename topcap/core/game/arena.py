@@ -303,11 +303,13 @@ class Arena:
         for iteration in iterations:
             opponent = deepcopy(agent)
             opponent.freeze()
-            # opponent.epsilon = 0.03
+            if isinstance(opponent, LeoAgentV1):
+                opponent.epsilon = 0.03
             test_agent = deepcopy(agent)
             test_agent.load(iteration)
             test_agent.freeze()  # Freeze to prevent learning during testing
-            # test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
+            if isinstance(test_agent, LeoAgentV1):
+                test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
             if not verbose:
                 test_agent.verbose = False
             wins = 0
@@ -374,7 +376,8 @@ class Arena:
             test_agent = deepcopy(agent)
             test_agent.load(iteration)  # This will load both q_table and config
             test_agent.freeze()  # Freeze to prevent learning during testing
-            # test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
+            if isinstance(test_agent, LeoAgentV1):
+                test_agent.epsilon = 0.03 #TEMP: make it greedy for the test
             
             if not verbose:
                 test_agent.verbose = False

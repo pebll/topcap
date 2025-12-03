@@ -44,14 +44,15 @@ class Game:
         self.log("Here begins the game of topcap!\n")
         self.log(f"{self.white} vs {self.black} ")
         self._save_board_state()
-        self._print_game_state()
+        if self.verbose:
+            self._print_game_state()
         while not self.game_over:
             try:
                 next_move = self.current_player.get_move(self.board)
                 self._game_step(next_move)
             except Exception as error:
                 self._handle_crash(error)
-            if not self.game_over:
+            if not self.game_over and self.verbose:
                 # do not print next game state if game is over
                 self._print_game_state()
 
