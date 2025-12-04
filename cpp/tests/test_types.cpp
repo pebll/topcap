@@ -91,12 +91,12 @@ TEST_CASE("sameSet works correctly", "[test_types]") {
 }
 
 TEST_CASE("Board operator== works correctly", "[test_types]") {
-  Board board1 = {0b1001, 0b0110, 4, true};
-  Board board2 = {0b1001, 0b0110, 4, true};
-  Board board3 = {0b1001, 0b0110, 5, true};  // Different N
-  Board board4 = {0b1000, 0b0110, 4, true};  // Different white
-  Board board5 = {0b1001, 0b0100, 4, true};  // Different black
-  Board board6 = {0b1001, 0b0110, 4, false}; // Different whiteToPlay
+  Board board1 = Board(0b1001, 0b0110, 4, true);
+  Board board2 = Board(0b1001, 0b0110, 4, true);
+  Board board3 = Board(0b1001, 0b0110, 5, true);  // Different N
+  Board board4 = Board(0b1000, 0b0110, 4, true);  // Different white
+  Board board5 = Board(0b1001, 0b0100, 4, true);  // Different black
+  Board board6 = Board(0b1001, 0b0110, 4, false); // Different whiteToPlay
 
   REQUIRE(board1 == board2);
   REQUIRE_FALSE(board1 == board3); // Different N
@@ -108,8 +108,8 @@ TEST_CASE("Board operator== works correctly", "[test_types]") {
 TEST_CASE("getCurrentColorBitboard returns correct bitboard", "[test_types]") {
   Bitboard white = 0b1001;
   Bitboard black = 0b0110;
-  Board boardWTP = {white, black, 4, true};
-  Board boardBTP = {white, black, 4, false};
+  Board boardWTP = Board(white, black, 4, true);
+  Board boardBTP = Board(white, black, 4, false);
 
   REQUIRE(getCurrentColorBitboard(boardWTP) == white);
   REQUIRE(getCurrentColorBitboard(boardBTP) == black);
@@ -118,6 +118,6 @@ TEST_CASE("getCurrentColorBitboard returns correct bitboard", "[test_types]") {
 TEST_CASE("getTotalBitboard returns correct bitboard", "[test_types]") {
   Bitboard white = 0b1001;
   Bitboard black = 0b0110;
-  Board board = {white, black, 4, true};
+  Board board = Board(white, black, 4, true);
   REQUIRE(getTotalBitboard(board) == 0b1111);
 }

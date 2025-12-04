@@ -189,7 +189,7 @@ on ThinkCenter this is 6000 states/s!!! (DOUBLE)
 - Remove the Unneccessary \_print_game_state call
 - Remove triple to_hash call while we only need it once
 
-### ResultsBeginning benchmarking RUN 250 GAMES performance
+### Results
 
 ThinkCenter:
 ---- 250 GAMES - Randi VS Rando ----
@@ -205,3 +205,12 @@ Beginning benchmarking DFS 6 performance
 - Time to complete : 25.235 s
 - Number of states : 229540
 - Time to complete : 1.643 s
+  on ThinkCenter this is 2000 states/s!!! (DOUBLE)
+  (DFS 5 has 45k states! DFS 4 has 7.5k)
+
+### C++ implementation
+
+This.. this has NOTHING to do with python.. wow...
+
+Best speed on python (stickers) was ~1k states/s
+Cpp speed is...: 600k states/s !!! (x600 boost!!!)

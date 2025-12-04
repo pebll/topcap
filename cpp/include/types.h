@@ -21,15 +21,14 @@ struct Move {
 };
 
 struct Board {
-  Bitboard white;
-  Bitboard black;
+  Bitboard bitboards[2];
   int N;
   bool whiteToPlay;
   mutable std::vector<Move> possibleMovesCache;
   mutable bool possibleMovesValid;
 
   Board(Bitboard w, Bitboard b, int n, bool wtp)
-      : white(w), black(b), N(n), whiteToPlay(wtp), possibleMovesValid(false) {}
+      : bitboards{w, b}, N(n), whiteToPlay(wtp), possibleMovesValid(false) {}
 };
 
 inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
@@ -41,7 +40,8 @@ inline bool operator==(const Move &lhs, const Move &rhs) {
 }
 
 inline bool operator==(const Board &lhs, const Board &rhs) {
-  return lhs.white == rhs.white && lhs.black == rhs.black && lhs.N == rhs.N &&
+  return lhs.bitboards[0] == rhs.bitboards[0] &&
+         lhs.bitboards[1] == rhs.bitboards[1] && lhs.N == rhs.N &&
          lhs.whiteToPlay == rhs.whiteToPlay;
 }
 
@@ -79,12 +79,25 @@ inline bool sameSet(const std::vector<Move> &lhs,
   return lshSorted == rshSorted;
 }
 
+inline Bitboard getColorBitboard(const Board &board, bool white) {
+  return board.bitboards[!white];
+}
+
 inline Bitboard getCurrentColorBitboard(const Board &board) {
-  return board.whiteToPlay ? board.white : board.black;
+  return getColorBitboard(board, board.whiteToPlay);
+}
+
+inline Bitboard getNextColorBitboard(const Board &board) {
+  return getColorBitboard(board, !board.whiteToPlay);
+}
+
+inline void setColorBitboardInPlace(Board &board, bool white,
+                                    Bitboard bitboard) {
+  board.bitboards[!white] = bitboard;
 }
 
 inline Bitboard getTotalBitboard(const Board &board) {
-  return board.white | board.black;
+  return board.bitboards[0] | board.bitboards[1];
 }
 
 } // namespace types

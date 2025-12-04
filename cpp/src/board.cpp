@@ -40,9 +40,9 @@ std::string boardToString(const Board &board) {
     std::string row = spaces + std::to_string(y + 1) + " ";
     for (int x = 0; x < board.N; x++) {
       int position = bitboard::coordsToPosition({x, y}, board.N);
-      if (bitboard::getBit(board.white, position)) {
+      if (bitboard::getBit(getColorBitboard(board, true), position)) {
         row += "● ";
-      } else if (bitboard::getBit(board.black, position)) {
+      } else if (bitboard::getBit(getColorBitboard(board, false), position)) {
         row += "○ ";
       } else {
         row += "· ";
@@ -101,11 +101,11 @@ bool isMoveLegal(const Board &board, Move move) {
 
 Board makeMove(Board board, Move move) {
   assert(isMoveLegal(board, move));
-  board.whiteToPlay
-      ? board.white = bitboard::makeMove(board.white, move, board.N)
-      : board.black = bitboard::makeMove(board.black, move, board.N);
+  setColorBitboardInPlace(
+      board, board.whiteToPlay,
+      bitboard::makeMove(getCurrentColorBitboard(board), move, board.N));
   board.whiteToPlay = !board.whiteToPlay;
-  board.possibleMovesValid = false;
+  board.possibleMovesValid = false; // invalidate cache!
   return board;
 }
 
@@ -117,7 +117,7 @@ std::pair<bool, bool> terminalState(const Board &board) {
                                : Coordinates{board.N - 1, board.N - 1},
                            board.N)); // TODO: refactor this board.white &
                                       // board.black to an array approach
-  Bitboard opponent = board.whiteToPlay ? board.black : board.white;
+  Bitboard opponent = getNextColorBitboard(board);
   if (bitboard::getBit(opponent, forbiddenCoords(board), board.N)) {
     return {true, !board.whiteToPlay}; // opponent reached base
   }

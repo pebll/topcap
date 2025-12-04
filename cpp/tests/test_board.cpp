@@ -11,14 +11,14 @@ using namespace types; // Types
 TEST_CASE("initialBoard gives correct initial states", "[board]") {
   Bitboard white4 = 0b0000'0000'0001'0010;
   Bitboard black4 = 0b0100'1000'0000'0000;
-  REQUIRE(initialBoard(4).white == white4);
-  REQUIRE(initialBoard(4).black == black4);
+  REQUIRE(initialBoard(4).bitboards[0] == white4);
+  REQUIRE(initialBoard(4).bitboards[1] == black4);
   REQUIRE(initialBoard(4).N == 4);
 
   Bitboard white5 = 0b00000'00000'00001'00010'00100;
   Bitboard black5 = 0b00100'01000'10000'00000'00000;
-  REQUIRE(initialBoard(5).white == white5);
-  REQUIRE(initialBoard(5).black == black5);
+  REQUIRE(initialBoard(5).bitboards[0] == white5);
+  REQUIRE(initialBoard(5).bitboards[1] == black5);
   REQUIRE(initialBoard(7).N == 7);
 }
 
@@ -80,8 +80,8 @@ TEST_CASE("forbiddenCoords works", "[board]") {
 TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board boardWhiteToPlay = {white, black, 4, true};
-  Board boardBlackToPlay = {white, black, 4, false};
+  Board boardWhiteToPlay = Board(white, black, 4, true);
+  Board boardBlackToPlay = Board(white, black, 4, false);
   std::vector<Move> whitePossibleMoves = {
       {{1, 0}, {1, 1}}, {{1, 0}, {2, 0}}, {{3, 1}, {1, 1}}};
   std::vector<Move> blackPossibleMoves = {
@@ -93,14 +93,14 @@ TEST_CASE("Complex 4x4 possibleMoves works", "[board]") {
 TEST_CASE("isMoveLegal works") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board boardWhiteToPlay = {white, black, 4, true};
+  Board boardWhiteToPlay = Board(white, black, 4, true);
   REQUIRE(isMoveLegal(boardWhiteToPlay, {{1, 0}, {1, 1}}));
   REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{2, 0}, {1, 0}}));
   REQUIRE(isMoveLegal(boardWhiteToPlay, {{3, 1}, {1, 1}}));
   REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{0, 1}, {2, 1}}));
   REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{0, 1}, {1, 1}}));
   REQUIRE_FALSE(isMoveLegal(boardWhiteToPlay, {{2, 3}, {0, 3}}));
-  Board boardBlackToPlay = {white, black, 4, false};
+  Board boardBlackToPlay = Board(white, black, 4, false);
   REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{1, 0}, {1, 1}}));
   REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{2, 0}, {1, 0}}));
   REQUIRE_FALSE(isMoveLegal(boardBlackToPlay, {{3, 1}, {1, 1}}));
@@ -120,13 +120,13 @@ TEST_CASE("isMoveLegal works") {
 TEST_CASE("board::makeMove works") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board boardWTP = {white, black, 4, true};
-  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).white == 0b0000'0100'1010'0000);
-  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).black == black);
+  Board boardWTP = Board(white, black, 4, true);
+  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).bitboards[0] == 0b0000'0100'1010'0000);
+  REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).bitboards[1] == black);
   REQUIRE(makeMove(boardWTP, {{1, 0}, {1, 1}}).whiteToPlay == false);
-  Board boardBTP = {white, black, 4, false};
-  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).white == white);
-  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).black == 0b0100'1000'0000'0001);
+  Board boardBTP = Board(white, black, 4, false);
+  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).bitboards[0] == white);
+  REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).bitboards[1] == 0b0100'1000'0000'0001);
   REQUIRE(makeMove(boardBTP, {{0, 1}, {0, 0}}).whiteToPlay == true);
 }
 
@@ -142,8 +142,8 @@ TEST_CASE("isTerminal & isWinnerWhite detects base Reached", "[board]") {
   bitboard::Bitboard white = 0b0000'0100'1000'0010;
   bitboard::Bitboard blackNotReached = 0b0100'1000'0001'0000;
   bitboard::Bitboard blackReached = 0b0100'1000'0000'0001;
-  Board boardNotReached = {white, blackNotReached, 4, true};
-  Board boardReached = {white, blackReached, 4, true};
+  Board boardNotReached = Board(white, blackNotReached, 4, true);
+  Board boardReached = Board(white, blackReached, 4, true);
   REQUIRE_FALSE(terminalState(boardNotReached).first);
   REQUIRE(terminalState(boardReached).first);
   REQUIRE_FALSE(terminalState(boardReached).second);
@@ -160,8 +160,8 @@ TEST_CASE("isTerminal & isWinnerWhite detects base Reached", "[board]") {
 TEST_CASE("isTerminal & isWinnerWhite detects no moves left", "[board]") {
   bitboard::Bitboard white = 0b0010'0100'1000'0000;
   bitboard::Bitboard black = 0b0100'1000'0001'0000;
-  Board boardWTP = {white, black, 4, true};
-  Board boardBTP = {white, black, 4, false};
+  Board boardWTP = Board(white, black, 4, true);
+  Board boardBTP = Board(white, black, 4, false);
   REQUIRE_FALSE(terminalState(boardWTP).first);
   REQUIRE(terminalState(boardBTP).first);
   REQUIRE(terminalState(boardBTP).second);

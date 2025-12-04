@@ -12,7 +12,8 @@
    - Provide plain text answers and instructions
    - Focus on CLI commands and explanations
    - Do not assume code changes are wanted
-   - Keep answers as short as possible
+   - **BE AS SHORT AS POSSIBLE** - one-liner answers are fine when appropriate
+   - Only develop/implement if explicitly asked
 
 3. **When User Asks for Help**
    - Read and understand the code
@@ -20,5 +21,10 @@
    - Only create/edit files if explicitly requested
    - Prefer text answers over code changes
 
-4. Read again this file on each new request
+4. **Testing**
+   - DO NOT run tests yourself
+   - Tell the user to run tests instead
+   - Example: "Run `make test` to verify"
+
+5. Read again this file on each new request
    - Say "I understood the AI Guidelines" at the beginning of each answer
