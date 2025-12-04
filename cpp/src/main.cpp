@@ -37,10 +37,10 @@ int main() {
   std::cout << "Total time: " << duration.count() << " ms" << std::endl;
   std::cout << "Average time per game: " << (double)duration.count() / games
             << " ms" << std::endl;
-  std::cout << "Games per second: " << games * 1000 / ((double)duration.count())
-            << " / s" << std::endl;
-  std::cout << "Steps per second: " << steps * 1000 / ((double)duration.count())
-            << " / s" << std::endl;
+  std::cout << "Games per second: " << int(games / ((double)duration.count()))
+            << "k /s" << std::endl;
+  std::cout << "Steps per second: " << int(steps / ((double)duration.count()))
+            << "k /s" << std::endl;
 
   return 0;
 }

@@ -17,15 +17,19 @@ using Board = types::Board;
 const int STRING_SPACE_LENGTH = 6;
 
 Board initialBoard(int N);
-std::string boardToString(Board board);
+std::string boardToString(const Board &board);
 std::string mStringHeader(int N);
 
-int neighbourCount(Board board, Coordinates coords);
-std::vector<Move> possibleMoves(Board board);
-Coordinates forbiddenCoords(Board board);
-bool isMoveLegal(Board board, Move move);
+int neighbourCount(const Board &board, Coordinates coords);
+std::vector<Move> possibleMoves(const Board &board);
+Coordinates forbiddenCoords(const Board &board);
+bool isMoveLegal(
+    const Board &board,
+    Move move); // TODO: can i use shorts (1 byte) or smth for coords?
 Board makeMove(Board board, Move move);
-std::pair<bool, bool> terminalState(Board board); // (isTerminal, isWinnerWhite)
+Board makeMoveInPlace(Board &board, Move move);
+std::pair<bool, bool>
+terminalState(const Board &board); // (isTerminal, isWinnerWhite)
 
 } // namespace board
 

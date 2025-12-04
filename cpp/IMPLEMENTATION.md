@@ -98,7 +98,7 @@ Compute the vertical mirror of the current state and take the smallest of both s
 
 ### Get neighbour count
 
-This is necessary when we want to calculate moves. This should be implemented first, as eit is probably quite simple and teach the basics of bit manipulation.
+This is necessary when we want to calculate moves. This should be implemented first, as it is probably quite simple and teach the basics of bit manipulation.
 
 ### Step 1: Get the pieceBitboard
 

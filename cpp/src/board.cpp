@@ -32,7 +32,7 @@ std::string mStringHeader(int N) {
   return header;
 }
 
-std::string boardToString(Board board) {
+std::string boardToString(const Board &board) {
   std::string spaces = std::string(STRING_SPACE_LENGTH, ' ');
   std::string str = std::string();
   str += mStringHeader(board.N);
@@ -54,11 +54,11 @@ std::string boardToString(Board board) {
   return str;
 }
 
-int neighbourCount(Board board, Coordinates coords) {
+int neighbourCount(const Board &board, Coordinates coords) {
   return bitboard::neighbourCount(getTotalBitboard(board), coords, board.N);
 }
 
-std::vector<Move> possibleMoves(Board board) {
+std::vector<Move> possibleMoves(const Board &board) {
   std::vector<Move> moves;
   std::vector<int> positions =
       bitboard::getPositions(getCurrentColorBitboard(board));
@@ -71,12 +71,12 @@ std::vector<Move> possibleMoves(Board board) {
   return moves;
 }
 
-Coordinates forbiddenCoords(Board board) {
+Coordinates forbiddenCoords(const Board &board) {
   return board.whiteToPlay ? Coordinates{0, 0}
                            : Coordinates{board.N - 1, board.N - 1};
 }
 
-bool isMoveLegal(Board board, Move move) {
+bool isMoveLegal(const Board &board, Move move) {
   // TODO: here also create an Optim version
   if (!bitboard::isMoveFeasible(getTotalBitboard(board), move, board.N)) {
     return false;
@@ -103,7 +103,7 @@ Board makeMove(Board board, Move move) {
   return board;
 }
 
-std::pair<bool, bool> terminalState(Board board) {
+std::pair<bool, bool> terminalState(const Board &board) {
   // be sure that current player is not in opponent goal
   assert(!bitboard::getBit(getCurrentColorBitboard(board),
                            !board.whiteToPlay
