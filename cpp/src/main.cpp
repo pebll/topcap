@@ -6,7 +6,7 @@
 
 int main() {
   int N = 6;
-  int games = 20000;
+  int games = 50000;
 
   // std::cout << "Enter your board size (N) [4-8]: ";
   // std::cin >> N;

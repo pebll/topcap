@@ -59,6 +59,9 @@ int neighbourCount(const Board &board, Coordinates coords) {
 }
 
 std::vector<Move> possibleMoves(const Board &board) {
+  if (board.possibleMovesValid) {
+    return board.possibleMovesCache;
+  }
   std::vector<Move> moves;
   std::vector<int> positions =
       bitboard::getPositions(getCurrentColorBitboard(board));
@@ -68,6 +71,8 @@ std::vector<Move> possibleMoves(const Board &board) {
         forbiddenCoords(board), board.N);
     moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
   }
+  board.possibleMovesCache = moves;
+  board.possibleMovesValid = true;
   return moves;
 }
 
@@ -100,6 +105,7 @@ Board makeMove(Board board, Move move) {
       ? board.white = bitboard::makeMove(board.white, move, board.N)
       : board.black = bitboard::makeMove(board.black, move, board.N);
   board.whiteToPlay = !board.whiteToPlay;
+  board.possibleMovesValid = false;
   return board;
 }
 

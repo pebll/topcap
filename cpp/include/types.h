@@ -25,6 +25,11 @@ struct Board {
   Bitboard black;
   int N;
   bool whiteToPlay;
+  mutable std::vector<Move> possibleMovesCache;
+  mutable bool possibleMovesValid;
+
+  Board(Bitboard w, Bitboard b, int n, bool wtp)
+      : white(w), black(b), N(n), whiteToPlay(wtp), possibleMovesValid(false) {}
 };
 
 inline bool operator==(const Coordinates &lhs, const Coordinates &rhs) {
