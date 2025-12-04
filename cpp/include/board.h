@@ -22,7 +22,6 @@ std::string mStringHeader(int N);
 
 int neighbourCount(const Board &board, Coordinates coords);
 std::vector<Move> possibleMoves(const Board &board);
-Coordinates forbiddenCoords(const Board &board);
 bool isMoveLegal(
     const Board &board,
     Move move); // TODO: can i use shorts (1 byte) or smth for coords?
@@ -31,6 +30,13 @@ Board makeMoveInPlace(Board &board, Move move);
 std::pair<bool, bool>
 terminalState(const Board &board); // (isTerminal, isWinnerWhite)
 
+inline Coordinates colorBaseCoords(const Board &board, bool white) {
+  return white ? Coordinates{0, 0} : Coordinates{board.N - 1, board.N - 1};
+}
+
+inline Coordinates forbiddenCoords(const Board &board) {
+  return colorBaseCoords(board, board.whiteToPlay);
+}
 } // namespace board
 
 #endif // !BOARD_H

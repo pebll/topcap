@@ -76,11 +76,6 @@ std::vector<Move> possibleMoves(const Board &board) {
   return moves;
 }
 
-Coordinates forbiddenCoords(const Board &board) {
-  return board.whiteToPlay ? Coordinates{0, 0}
-                           : Coordinates{board.N - 1, board.N - 1};
-}
-
 bool isMoveLegal(const Board &board, Move move) {
   // TODO: here also create an Optim version
   if (!bitboard::isMoveFeasible(getTotalBitboard(board), move, board.N)) {
@@ -112,11 +107,8 @@ Board makeMove(Board board, Move move) {
 std::pair<bool, bool> terminalState(const Board &board) {
   // be sure that current player is not in opponent goal
   assert(!bitboard::getBit(getCurrentColorBitboard(board),
-                           !board.whiteToPlay
-                               ? Coordinates{0, 0}
-                               : Coordinates{board.N - 1, board.N - 1},
-                           board.N)); // TODO: refactor this board.white &
-                                      // board.black to an array approach
+                           colorBaseCoords(board, !board.whiteToPlay),
+                           board.N));
   Bitboard opponent = getNextColorBitboard(board);
   if (bitboard::getBit(opponent, forbiddenCoords(board), board.N)) {
     return {true, !board.whiteToPlay}; // opponent reached base
