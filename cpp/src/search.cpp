@@ -1,42 +1,63 @@
-#include "../include/game.h"
 #include "../include/board.h"
-#include "../include/utils.h"
 #include <iostream>
 
 using namespace types;
 
-
 namespace search {
 
-float evaluate(Board board){
-  return 0.0;
+float evaluate(Board board) {
+  if (board::terminalState(board).first) {
+    bool winner = board::terminalState(board).second;
+    std::cout << "Found terminalState with " << (winner ? "white" : "black")
+              << " as winner!" << std::endl;
+    return winner ? 1000 : -1000;
+  }
+  return 0;
 }
 
-float minValue(Board board, int depthToGo){
-  if (depthToGo == 0){
-    return evaluate(board);
-  }
-  if (board::terminalState(board)[0]){
-
-
-  }
-  std::vector<Move> moves = board::possibleMoves(board);
-  float value = 1000; // TODO: how to do inf?
-  Move move = 
-  for(const Move &move : moves){
-    v
-
-}
-
-Move minimax(Board board, int depthToGo){
-  if (depthToGo == 0){
+float maxValue(Board board, int depthToGo);
+float minValue(Board board, int depthToGo) {
+  if (depthToGo == 0 || board::terminalState(board).first) {
     return evaluate(board);
   }
   std::vector<Move> moves = board::possibleMoves(board);
-  for(const Move &move : moves){
+  float bestValue = 1000;
 
-
+  for (const Move &move : moves) {
+    Board newBoard = board::makeMove(board, move);
+    bestValue = std::min(bestValue, maxValue(newBoard, depthToGo - 1));
   }
-  return moves[0];
+  return bestValue;
+}
+
+float maxValue(Board board, int depthToGo) {
+  if (depthToGo == 0 || board::terminalState(board).first) {
+    return evaluate(board);
+  }
+  std::vector<Move> moves = board::possibleMoves(board);
+  float bestValue = -1000;
+
+  for (const Move &move : moves) {
+    Board newBoard = board::makeMove(board, move);
+    bestValue = std::max(bestValue, minValue(newBoard, depthToGo - 1));
+  }
+  return bestValue;
+}
+
+Move minimax(Board board, int depthToGo, bool maximizing) {
+  std::vector<Move> moves = board::possibleMoves(board);
+  Move bestMove = moves[0];
+  float bestValue = maximizing ? -1000 : 1000;
+  for (const Move &move : moves) {
+    float newValue =
+        maximizing ? maxValue(board, depthToGo) : minValue(board, depthToGo);
+    if ((maximizing && newValue > bestValue) ||
+        (!maximizing && newValue < bestValue)) {
+      bestValue = newValue;
+      bestMove = move;
+    }
+  }
+  std::cout << "Chose best move with eval " << bestValue << std::endl;
+  return bestMove;
 }
 } // namespace search

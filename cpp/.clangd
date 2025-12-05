@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - -Iinclude
+    - -std=c++17
+    - -I/usr/include/python3.13
+    - -I/home/lo/repos/topcap/venv/lib64/python3.13/site-packages/pybind11/include

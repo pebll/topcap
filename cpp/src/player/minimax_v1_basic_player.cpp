@@ -8,8 +8,8 @@ using namespace types;
 
 namespace player {
 
-Move MinimaxV1::getMove(const Board& board) {
-  return search::minimax(board,1 );
+Move MinimaxV1::getMove(const Board &board) {
+  return search::minimax(board, 20, true); // TODO: do not hardcode!
 }
 
 } // namespace player

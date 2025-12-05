@@ -15,7 +15,9 @@ using Move = types::Move;
 using Board = types::Board;
 using Player = player::Player;
 
-Move minimax(Board board, int maxDepth);
+Move minimax(Board board, int maxDepth, bool maximizing);
+float minValue(Board board, int depthToGo);
+float maxValue(Board board, int depthToGo);
 float evaluate(Board board);
 
 } // namespace search
