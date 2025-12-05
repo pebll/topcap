@@ -21,7 +21,7 @@ int main() {
   auto start = std::chrono::high_resolution_clock::now();
 
   const int RUN_GAMES = false;
-  game::runGame(N, &minimax, &human, true);
+  game::runGame(N, &human, &minimax, true);
 
   if (RUN_GAMES) {
     int steps = 0;
