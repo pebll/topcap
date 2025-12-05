@@ -6,7 +6,7 @@
 #include <iostream>
 
 int main() {
-  int N = 4;
+  int N = 8;
   int games = 50000;
 
   // std::cout << "Enter your board size (N) [4-8]: ";
@@ -16,12 +16,14 @@ int main() {
   player::RandomAI randi("Randi");
   player::RandomAI rando("Rando");
   player::MinimaxV1 minimax("Minimax");
+  player::MinimaxV1 maximin("Maximin");
 
   // Start profiling
   auto start = std::chrono::high_resolution_clock::now();
 
   const int RUN_GAMES = false;
-  game::runGame(N, &human, &minimax, true);
+  game::runGame(N, &maximin, &minimax, true);
+  // game::runGame(N, &randi, &maximin, true);
 
   if (RUN_GAMES) {
     int steps = 0;

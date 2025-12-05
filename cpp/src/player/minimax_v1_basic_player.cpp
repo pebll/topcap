@@ -9,7 +9,10 @@ using namespace types;
 namespace player {
 
 Move MinimaxV1::getMove(const Board &board) {
-  return search::minimax(board, 11, false); // TODO: do not hardcode!
+  // Use board.whiteToPlay to determine if we should maximize (white) or
+  // minimize (black)
+  return search::minimax(board, 5,
+                         board.whiteToPlay); // TODO: do not hardcode depth!
 }
 
 } // namespace player
