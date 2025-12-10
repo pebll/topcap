@@ -7,7 +7,7 @@ using namespace types;
 
 namespace game {
 
-int runGame(int N, Player *white, Player *black, bool verbose) {
+GameResult runGame(int N, Player *white, Player *black, bool verbose) {
   Board board = board::initialBoard(N);
   white->setIsWhite(true);
   black->setIsWhite(false);
@@ -19,6 +19,7 @@ int runGame(int N, Player *white, Player *black, bool verbose) {
 
   int step = 0;
   bool gameOver = false;
+  bool winner = false;
 
   while (!gameOver) {
     Player *currentPlayer = (step % 2 == 0) ? white : black;
@@ -43,17 +44,18 @@ int runGame(int N, Player *white, Player *black, bool verbose) {
 
     auto terminal = board::terminalState(board);
     gameOver = terminal.first;
+    winner = terminal.second;
 
     if (gameOver && verbose) {
       std::cout << board::boardToString(board) << std::endl;
-      if (terminal.second) {
+      if (winner) {
         std::cout << white->getName() << " wins!" << std::endl;
       } else {
         std::cout << black->getName() << " wins!" << std::endl;
       }
     }
   }
-  return step;
+  return {board, step, winner};
 }
 
 } // namespace game

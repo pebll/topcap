@@ -65,7 +65,7 @@ Move minimax(Board board, int maxDepth, bool maximizing) {
       bestMove = move;
     }
   }
-  std::cout << "Chose best move with eval " << bestValue << std::endl;
+  // std::cout << "Chose best move with eval " << bestValue << std::endl;
   return bestMove;
 }
 } // namespace search

@@ -15,8 +15,14 @@ using Move = types::Move;
 using Board = types::Board;
 using Player = player::Player;
 
+struct GameResult {
+  Board lastBoard;
+  int gameSteps;
+  bool winner; // true if white, false if black
+};
+
 // TODO: return useful stuff
-int runGame(int N, Player *white, Player *black, bool verbose);
+GameResult runGame(int N, Player *white, Player *black, bool verbose);
 
 } // namespace game
 

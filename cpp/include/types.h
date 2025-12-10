@@ -44,7 +44,6 @@ inline bool operator==(const Board &lhs, const Board &rhs) {
          lhs.bitboards[1] == rhs.bitboards[1] && lhs.N == rhs.N &&
          lhs.whiteToPlay == rhs.whiteToPlay;
 }
-
 inline Coordinates operator+(const Coordinates &lhs, const Coordinates &rhs) {
   return {lhs.x + rhs.x, lhs.y + rhs.y};
 }

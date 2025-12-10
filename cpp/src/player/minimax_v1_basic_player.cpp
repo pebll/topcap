@@ -11,7 +11,7 @@ namespace player {
 Move MinimaxV1::getMove(const Board &board) {
   // Use board.whiteToPlay to determine if we should maximize (white) or
   // minimize (black)
-  return search::minimax(board, 5,
+  return search::minimax(board, 10,
                          board.whiteToPlay); // TODO: do not hardcode depth!
 }
 
